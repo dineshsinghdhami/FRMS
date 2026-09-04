@@ -16,7 +16,7 @@ class LoginForm(FlaskForm):
         "Password",
         validators=[
             DataRequired(),
-            Length(min=6, max=128)
+            Length(min=5, max=128)
         ]
     )
 

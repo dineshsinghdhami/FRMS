@@ -1,0 +1,182 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Add Family Member | Family Record Management System
+{% endblock %}
+
+{% block content %}
+
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">
+            Add Family Member
+        </h2>
+
+        <p class="text-muted mb-0">
+            Create a new family member profile.
+        </p>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+
+            <form method="POST">
+
+                {{ form.hidden_tag() }}
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        {{ form.full_name.label(class="form-label") }}
+                        {{ form.full_name(class="form-control", placeholder="Enter full name") }}
+
+                        {% for error in form.full_name.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form.date_of_birth.label(class="form-label") }}
+                        {{ form.date_of_birth(class="form-control") }}
+
+                        {% for error in form.date_of_birth.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form.gender.label(class="form-label") }}
+                        {{ form.gender(class="form-select") }}
+
+                        {% for error in form.gender.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form.blood_group.label(class="form-label") }}
+                        {{ form.blood_group(class="form-select") }}
+
+                        {% for error in form.blood_group.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form.phone.label(class="form-label") }}
+                        {{ form.phone(class="form-control", placeholder="Enter phone number") }}
+
+                        {% for error in form.phone.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control", placeholder="Enter email") }}
+
+                        {% for error in form.email.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form.permanent_address.label(class="form-label") }}
+                        {{ form.permanent_address(class="form-control", placeholder="Enter permanent address") }}
+
+                        {% for error in form.permanent_address.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form.current_address.label(class="form-label") }}
+                        {{ form.current_address(class="form-control", placeholder="Enter current address") }}
+
+                        {% for error in form.current_address.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form.occupation.label(class="form-label") }}
+                        {{ form.occupation(class="form-control", placeholder="Enter occupation") }}
+
+                        {% for error in form.occupation.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form.marital_status.label(class="form-label") }}
+                        {{ form.marital_status(class="form-select") }}
+
+                        {% for error in form.marital_status.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form.emergency_contact.label(class="form-label") }}
+                        {{ form.emergency_contact(class="form-control", placeholder="Enter emergency contact") }}
+
+                        {% for error in form.emergency_contact.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form.generation.label(class="form-label") }}
+                        {{ form.generation(class="form-control", placeholder="Example: 1, 2, 3") }}
+
+                        {% for error in form.generation.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form.bio.label(class="form-label") }}
+                        {{ form.bio(class="form-control", rows="4", placeholder="Write a short biography") }}
+
+                        {% for error in form.bio.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end">
+                    {{ form.submit(class="btn btn-dark px-4") }}
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+{% endblock %}

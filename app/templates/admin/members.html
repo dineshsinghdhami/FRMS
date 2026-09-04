@@ -1,0 +1,179 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Family Members | Family Record Management System
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">
+            Family Members
+        </h2>
+
+        <p class="text-muted mb-0">
+            View and manage family member profiles.
+        </p>
+    </div>
+
+    <a
+        href="{{ url_for('admin.add_member') }}"
+        class="btn btn-dark"
+    >
+        Add Family Member
+    </a>
+</div>
+
+<form method="GET" class="mb-4">
+    <div class="input-group">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search by name, occupation, or location"
+            value="{{ search }}"
+        >
+
+        <button
+            type="submit"
+            class="btn btn-dark"
+        >
+            Search
+        </button>
+
+        {% if search %}
+            <a
+                href="{{ url_for('admin.members') }}"
+                class="btn btn-outline-secondary"
+            >
+                Clear
+            </a>
+        {% endif %}
+
+    </div>
+</form>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+
+        {% if family_members %}
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-4 py-3">Name</th>
+                            <th class="py-3">Gender</th>
+                            <th class="py-3">Occupation</th>
+                            <th class="py-3">Generation</th>
+                            <th class="py-3">Phone</th>
+                            <th class="py-3">Account</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for member in family_members %}
+
+                            <tr>
+
+                                <td class="px-4 py-3">
+                                    <strong>
+                                        {{ member.full_name }}
+                                    </strong>
+
+                                    {% if member.email %}
+                                        <div class="small text-muted">
+                                            {{ member.email }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ member.gender or "-" }}
+                                </td>
+
+                                <td>
+                                    {{ member.occupation or "-" }}
+                                </td>
+
+                                <td>
+                                    {% if member.generation %}
+                                        Generation {{ member.generation }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ member.phone or "-" }}
+                                </td>
+
+                                <td>
+                                    {% if member.user %}
+                                        <span class="badge text-bg-success">
+                                            Linked
+                                        </span>
+                                    {% else %}
+                                        <span class="badge text-bg-secondary">
+                                            No Account
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        {% else %}
+
+            <div class="text-center p-5">
+
+                {% if search %}
+
+                    <h5>No matching family members found</h5>
+
+                    <p class="text-muted">
+                        Try a different search term.
+                    </p>
+
+                    <a
+                        href="{{ url_for('admin.members') }}"
+                        class="btn btn-outline-dark"
+                    >
+                        Clear Search
+                    </a>
+
+                {% else %}
+
+                    <h5>No family members found</h5>
+
+                    <p class="text-muted">
+                        Add the first family member to get started.
+                    </p>
+
+                    <a
+                        href="{{ url_for('admin.add_member') }}"
+                        class="btn btn-dark"
+                    >
+                        Add Family Member
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

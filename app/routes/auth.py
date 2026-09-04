@@ -14,6 +14,9 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
+        if current_user.role == "admin":
+            return redirect(url_for("admin.dashboard"))
+
         return redirect(url_for("home"))
 
     form = LoginForm()
@@ -35,6 +38,9 @@ def login():
             db.session.commit()
 
             login_user(user)
+
+            if user.role == "admin":
+                return redirect(url_for("admin.dashboard"))
 
             return redirect(url_for("home"))
 

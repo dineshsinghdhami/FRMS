@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Admin | Family Record Management System{% endblock %}</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+</head>
+
+<body class="bg-light">
+
+    <div class="d-flex min-vh-100">
+
+        <aside
+            class="bg-dark text-white p-3"
+            style="width: 250px;"
+        >
+            <h4 class="mb-4">
+                Family Records
+            </h4>
+
+            <nav class="nav flex-column gap-1">
+
+                <a
+                    href="{{ url_for('admin.dashboard') }}"
+                    class="nav-link text-white"
+                >
+                    Dashboard
+                </a>
+
+                <a
+    href="{{ url_for('admin.members') }}"
+    class="nav-link text-white"
+>
+    Members
+</a>
+
+                <a
+                    href="#"
+                    class="nav-link text-white"
+                >
+                    Family Tree
+                </a>
+
+                <a
+                    href="#"
+                    class="nav-link text-white"
+                >
+                    Activities
+                </a>
+
+                <a
+                    href="#"
+                    class="nav-link text-white"
+                >
+                    Education
+                </a>
+
+                <a
+                    href="#"
+                    class="nav-link text-white"
+                >
+                    Career
+                </a>
+
+                <a
+                    href="#"
+                    class="nav-link text-white"
+                >
+                    Achievements
+                </a>
+
+                <a
+                    href="#"
+                    class="nav-link text-white"
+                >
+                    Events
+                </a>
+
+                <a
+                    href="#"
+                    class="nav-link text-white"
+                >
+                    Announcements
+                </a>
+
+                <a
+                    href="#"
+                    class="nav-link text-white"
+                >
+                    Gallery
+                </a>
+
+                <a
+                    href="#"
+                    class="nav-link text-white"
+                >
+                    Documents
+                </a>
+
+                <a
+                    href="#"
+                    class="nav-link text-white"
+                >
+                    Family History
+                </a>
+
+                <a
+                    href="#"
+                    class="nav-link text-white"
+                >
+                    Reports
+                </a>
+
+                <hr class="border-secondary">
+
+                <a
+                    href="{{ url_for('auth.logout') }}"
+                    class="nav-link text-white"
+                >
+                    Logout
+                </a>
+
+            </nav>
+        </aside>
+
+        <main class="flex-grow-1">
+
+            <div
+                class="bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center"
+            >
+                <div>
+                    <strong>
+                        Family Record Management System
+                    </strong>
+                </div>
+
+                <div class="text-muted">
+                    {{ current_user.username }}
+                </div>
+            </div>
+
+            <div class="p-4">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div
+                                class="alert alert-{{ category }} alert-dismissible fade show"
+                                role="alert"
+                            >
+                                {{ message }}
+
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert"
+                                ></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}
+                {% endblock %}
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+</body>
+</html>

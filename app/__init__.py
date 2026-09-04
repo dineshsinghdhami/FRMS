@@ -18,6 +18,7 @@ def create_app():
     login_manager.login_message_category = "warning"
 
     from app.models.user import User
+    from app.models.family_member import FamilyMember
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -27,6 +28,9 @@ def create_app():
 
     from app.routes.auth import auth_bp
     app.register_blueprint(auth_bp)
+
+    from app.routes.admin import admin_bp
+    app.register_blueprint(admin_bp)
 
     @app.route("/")
     @login_required

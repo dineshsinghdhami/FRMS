@@ -2,7 +2,7 @@ from flask import Flask
 from flask_login import login_required
 
 from config import Config
-from app.extensions import db, login_manager, migrate
+from app.extensions import csrf, db, login_manager, migrate
 
 
 def create_app():
@@ -12,6 +12,7 @@ def create_app():
 
     db.init_app(app)
     login_manager.init_app(app)
+    csrf.init_app(app)
 
     login_manager.login_view = "auth.login"
     login_manager.login_message = "Please log in to access this page."
@@ -19,6 +20,7 @@ def create_app():
 
     from app.models.user import User
     from app.models.family_member import FamilyMember
+    from app.models.relationship import Relationship
 
     @login_manager.user_loader
     def load_user(user_id):

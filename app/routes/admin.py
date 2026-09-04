@@ -1,9 +1,11 @@
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
 from app.extensions import db
 from app.forms.member import FamilyMemberForm
+from app.forms.relationship import RelationshipForm
 from app.models.family_member import FamilyMember
+from app.models.relationship import Relationship
 from app.models.user import User
 from app.utilities.decorators import admin_required
 
@@ -13,6 +15,67 @@ admin_bp = Blueprint(
     __name__,
     url_prefix="/admin"
 )
+
+
+def get_reverse_relationship(
+    relationship_type,
+    member,
+    related_member
+):
+    if relationship_type == "Father":
+        if related_member.gender == "Female":
+            return "Daughter"
+        return "Son"
+
+    if relationship_type == "Mother":
+        if related_member.gender == "Female":
+            return "Daughter"
+        return "Son"
+
+    if relationship_type == "Son":
+        if related_member.gender == "Female":
+            return "Mother"
+        return "Father"
+
+    if relationship_type == "Daughter":
+        if related_member.gender == "Female":
+            return "Mother"
+        return "Father"
+
+    if relationship_type == "Husband":
+        return "Wife"
+
+    if relationship_type == "Wife":
+        return "Husband"
+
+    if relationship_type == "Spouse":
+        return "Spouse"
+
+    if relationship_type == "Brother":
+        if related_member.gender == "Female":
+            return "Sister"
+        return "Brother"
+
+    if relationship_type == "Sister":
+        if related_member.gender == "Male":
+            return "Brother"
+        return "Sister"
+
+    if relationship_type == "Grandfather":
+        return "Grandchild"
+
+    if relationship_type == "Grandmother":
+        return "Grandchild"
+
+    if relationship_type == "Grandchild":
+        if related_member.gender == "Female":
+            return "Grandmother"
+        return "Grandfather"
+
+    if relationship_type == "Cousin":
+        return "Cousin"
+
+    return None
 
 
 @admin_bp.route("/dashboard")
@@ -30,6 +93,37 @@ def dashboard():
         active_users=active_users,
         inactive_users=inactive_users,
         admin_users=admin_users
+    )
+
+
+@admin_bp.route("/members")
+@login_required
+@admin_required
+def members():
+    search = request.args.get("search", "").strip()
+
+    query = FamilyMember.query
+
+    if search:
+        search_term = f"%{search}%"
+
+        query = query.filter(
+            db.or_(
+                FamilyMember.full_name.ilike(search_term),
+                FamilyMember.occupation.ilike(search_term),
+                FamilyMember.current_address.ilike(search_term),
+                FamilyMember.permanent_address.ilike(search_term)
+            )
+        )
+
+    family_members = query.order_by(
+        FamilyMember.created_at.desc()
+    ).all()
+
+    return render_template(
+        "admin/members.html",
+        family_members=family_members,
+        search=search
     )
 
 
@@ -77,42 +171,220 @@ def add_member():
 
         flash("Family member added successfully.", "success")
 
-        return redirect(url_for("admin.add_member"))
-    
-    
+        return redirect(
+            url_for("admin.member_detail", member_id=member.id)
+        )
 
     return render_template(
         "admin/add_member.html",
         form=form
     )
-@admin_bp.route("/members")
+
+
+@admin_bp.route("/members/<int:member_id>", methods=["GET", "POST"])
 @login_required
 @admin_required
-def members():
-    from flask import request
+def member_detail(member_id):
+    member = FamilyMember.query.get_or_404(member_id)
 
-    search = request.args.get("search", "").strip()
+    relationship_form = RelationshipForm()
 
-    query = FamilyMember.query
+    available_members = FamilyMember.query.filter(
+        FamilyMember.id != member.id
+    ).order_by(FamilyMember.full_name.asc()).all()
 
-    if search:
-        search_term = f"%{search}%"
+    relationship_form.related_member_id.choices = [
+        (family_member.id, family_member.full_name)
+        for family_member in available_members
+    ]
 
-        query = query.filter(
-            db.or_(
-                FamilyMember.full_name.ilike(search_term),
-                FamilyMember.occupation.ilike(search_term),
-                FamilyMember.current_address.ilike(search_term),
-                FamilyMember.permanent_address.ilike(search_term)
-            )
+    if relationship_form.validate_on_submit():
+        related_member = FamilyMember.query.get_or_404(
+            relationship_form.related_member_id.data
         )
 
-    family_members = query.order_by(
-        FamilyMember.created_at.desc()
-    ).all()
+        relationship_type = relationship_form.relationship_type.data
+
+        existing_relationship = Relationship.query.filter_by(
+            member_id=member.id,
+            related_member_id=related_member.id,
+            relationship_type=relationship_type
+        ).first()
+
+        if existing_relationship:
+            flash(
+                "This relationship already exists.",
+                "warning"
+            )
+
+            return redirect(
+                url_for("admin.member_detail", member_id=member.id)
+            )
+
+        relationship = Relationship(
+            member_id=member.id,
+            related_member_id=related_member.id,
+            relationship_type=relationship_type
+        )
+
+        db.session.add(relationship)
+
+        reverse_type = get_reverse_relationship(
+            relationship_type,
+            member,
+            related_member
+        )
+
+        if reverse_type:
+            reverse_exists = Relationship.query.filter_by(
+                member_id=related_member.id,
+                related_member_id=member.id,
+                relationship_type=reverse_type
+            ).first()
+
+            if not reverse_exists:
+                reverse_relationship = Relationship(
+                    member_id=related_member.id,
+                    related_member_id=member.id,
+                    relationship_type=reverse_type
+                )
+
+                db.session.add(reverse_relationship)
+
+        db.session.commit()
+
+        flash(
+            "Relationship added successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("admin.member_detail", member_id=member.id)
+        )
+
+    relationships = Relationship.query.filter_by(
+        member_id=member.id
+    ).order_by(Relationship.created_at.desc()).all()
 
     return render_template(
-        "admin/members.html",
-        family_members=family_members,
-        search=search
+        "admin/member_detail.html",
+        member=member,
+        relationship_form=relationship_form,
+        relationships=relationships
+    )
+
+
+@admin_bp.route(
+    "/members/<int:member_id>/edit",
+    methods=["GET", "POST"]
+)
+@login_required
+@admin_required
+def edit_member(member_id):
+    member = FamilyMember.query.get_or_404(member_id)
+
+    form = FamilyMemberForm(obj=member)
+
+    if form.validate_on_submit():
+        member.full_name = form.full_name.data.strip()
+        member.date_of_birth = form.date_of_birth.data
+        member.gender = form.gender.data or None
+        member.blood_group = form.blood_group.data or None
+        member.phone = (
+            form.phone.data.strip()
+            if form.phone.data
+            else None
+        )
+        member.email = (
+            form.email.data.strip()
+            if form.email.data
+            else None
+        )
+        member.permanent_address = (
+            form.permanent_address.data.strip()
+            if form.permanent_address.data
+            else None
+        )
+        member.current_address = (
+            form.current_address.data.strip()
+            if form.current_address.data
+            else None
+        )
+        member.occupation = (
+            form.occupation.data.strip()
+            if form.occupation.data
+            else None
+        )
+        member.marital_status = form.marital_status.data or None
+        member.emergency_contact = (
+            form.emergency_contact.data.strip()
+            if form.emergency_contact.data
+            else None
+        )
+        member.generation = form.generation.data
+        member.bio = (
+            form.bio.data.strip()
+            if form.bio.data
+            else None
+        )
+
+        db.session.commit()
+
+        flash(
+            "Family member updated successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("admin.member_detail", member_id=member.id)
+        )
+
+    return render_template(
+        "admin/edit_member.html",
+        form=form,
+        member=member
+    )
+
+
+@admin_bp.route(
+    "/members/<int:member_id>/delete",
+    methods=["POST"]
+)
+@login_required
+@admin_required
+def delete_member(member_id):
+    member = FamilyMember.query.get_or_404(member_id)
+
+    if member.user:
+        flash(
+            "This family member has a linked login account. "
+            "Unlink or manage the account before deleting the profile.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("admin.member_detail", member_id=member.id)
+        )
+
+    Relationship.query.filter(
+        db.or_(
+            Relationship.member_id == member.id,
+            Relationship.related_member_id == member.id
+        )
+    ).delete(
+        synchronize_session=False
+    )
+
+    member_name = member.full_name
+
+    db.session.delete(member)
+    db.session.commit()
+
+    flash(
+        f"{member_name} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("admin.members")
     )

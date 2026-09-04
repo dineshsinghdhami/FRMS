@@ -1,0 +1,447 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+{{ member.full_name }} | Family Record Management System
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+        <h2 class="fw-bold mb-1">
+            {{ member.full_name }}
+        </h2>
+
+        <p class="text-muted mb-0">
+            Family member profile
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+
+        <a
+            href="{{ url_for('admin.edit_member', member_id=member.id) }}"
+            class="btn btn-dark"
+        >
+            Edit Member
+        </a>
+
+        <a
+            href="{{ url_for('admin.members') }}"
+            class="btn btn-outline-secondary"
+        >
+            Back to Members
+        </a>
+
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-12 col-lg-4">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body text-center p-4">
+
+                <div
+                    class="rounded-circle bg-light border d-flex align-items-center justify-content-center mx-auto mb-3"
+                    style="width: 110px; height: 110px;"
+                >
+                    <span class="fs-1 text-muted">
+                        {{ member.full_name[0] }}
+                    </span>
+                </div>
+
+                <h4 class="fw-bold mb-1">
+                    {{ member.full_name }}
+                </h4>
+
+                <p class="text-muted mb-3">
+                    {{ member.occupation or "Occupation not added" }}
+                </p>
+
+                {% if member.generation %}
+
+                    <span class="badge text-bg-dark">
+                        Generation {{ member.generation }}
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-12 col-lg-8">
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+
+                <h5 class="mb-0">
+                    Personal Information
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Date of Birth
+                        </small>
+
+                        <strong>
+                            {{ member.date_of_birth or "-" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Gender
+                        </small>
+
+                        <strong>
+                            {{ member.gender or "-" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Blood Group
+                        </small>
+
+                        <strong>
+                            {{ member.blood_group or "-" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Marital Status
+                        </small>
+
+                        <strong>
+                            {{ member.marital_status or "-" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Phone
+                        </small>
+
+                        <strong>
+                            {{ member.phone or "-" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Email
+                        </small>
+
+                        <strong>
+                            {{ member.email or "-" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Permanent Address
+                        </small>
+
+                        <strong>
+                            {{ member.permanent_address or "-" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Current Address
+                        </small>
+
+                        <strong>
+                            {{ member.current_address or "-" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Emergency Contact
+                        </small>
+
+                        <strong>
+                            {{ member.emergency_contact or "-" }}
+                        </strong>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">
+                            Account
+                        </small>
+
+                        {% if member.user %}
+
+                            <span class="badge text-bg-success">
+                                Linked
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge text-bg-secondary">
+                                No Account
+                            </span>
+
+                        {% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+
+                <h5 class="mb-0">
+                    Biography
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                {% if member.bio %}
+
+                    <p class="mb-0">
+                        {{ member.bio }}
+                    </p>
+
+                {% else %}
+
+                    <p class="text-muted mb-0">
+                        No biography has been added.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+
+                <h5 class="mb-0">
+                    Family Relationships
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                {% if relationship_form.related_member_id.choices %}
+
+                    <form method="POST" class="mb-4">
+
+                        {{ relationship_form.hidden_tag() }}
+
+                        <div class="row g-3 align-items-end">
+
+                            <div class="col-md-5">
+
+                                {{ relationship_form.related_member_id.label(
+                                    class="form-label"
+                                ) }}
+
+                                {{ relationship_form.related_member_id(
+                                    class="form-select"
+                                ) }}
+
+                            </div>
+
+                            <div class="col-md-4">
+
+                                {{ relationship_form.relationship_type.label(
+                                    class="form-label"
+                                ) }}
+
+                                {{ relationship_form.relationship_type(
+                                    class="form-select"
+                                ) }}
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                {{ relationship_form.submit(
+                                    class="btn btn-dark w-100"
+                                ) }}
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                {% else %}
+
+                    <div class="alert alert-light border">
+
+                        Add another family member before creating a relationship.
+
+                    </div>
+
+                {% endif %}
+
+                {% if relationships %}
+
+                    <div class="table-responsive">
+
+                        <table class="table align-middle mb-0">
+
+                            <thead class="table-light">
+
+                                <tr>
+                                    <th>Relationship</th>
+                                    <th>Family Member</th>
+                                    <th>Generation</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {% for relationship in relationships %}
+
+                                    <tr>
+
+                                        <td>
+                                            <span class="badge text-bg-dark">
+                                                {{ relationship.relationship_type }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+
+                                            <a
+                                                href="{{ url_for(
+                                                    'admin.member_detail',
+                                                    member_id=relationship.related_member.id
+                                                ) }}"
+                                                class="text-decoration-none"
+                                            >
+                                                {{ relationship.related_member.full_name }}
+                                            </a>
+
+                                        </td>
+
+                                        <td>
+
+                                            {% if relationship.related_member.generation %}
+                                                Generation
+                                                {{ relationship.related_member.generation }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="text-muted mb-0">
+                        No relationships have been added yet.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <div class="card border-danger-subtle">
+
+            <div class="card-header bg-white py-3">
+
+                <h5 class="mb-0 text-danger">
+                    Delete Family Member
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <p class="text-muted">
+                    This permanently removes this family member profile.
+                    This action cannot be undone.
+                </p>
+
+                {% if member.user %}
+
+                    <button
+                        class="btn btn-outline-danger"
+                        disabled
+                    >
+                        Cannot Delete Linked Account
+                    </button>
+
+                {% else %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'admin.delete_member',
+                            member_id=member.id
+                        ) }}"
+                        onsubmit="return confirm(
+                            'Are you sure you want to delete this family member?'
+                        );"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="btn btn-outline-danger"
+                        >
+                            Delete Family Member
+                        </button>
+
+                    </form>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

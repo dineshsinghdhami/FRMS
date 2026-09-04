@@ -33,12 +33,12 @@ def get_reverse_relationship(
         return "Son"
 
     if relationship_type == "Son":
-        if related_member.gender == "Female":
+        if member.gender == "Female":
             return "Mother"
         return "Father"
 
     if relationship_type == "Daughter":
-        if related_member.gender == "Female":
+        if member.gender == "Female":
             return "Mother"
         return "Father"
 
@@ -68,7 +68,7 @@ def get_reverse_relationship(
         return "Grandchild"
 
     if relationship_type == "Grandchild":
-        if related_member.gender == "Female":
+        if member.gender == "Female":
             return "Grandmother"
         return "Grandfather"
 
@@ -76,6 +76,69 @@ def get_reverse_relationship(
         return "Cousin"
 
     return None
+
+
+def assign_generation_from_relationship(
+    member,
+    related_member,
+    relationship_type
+):
+    if member.generation is not None and related_member.generation is not None:
+        return False
+
+    if relationship_type in ["Father", "Mother"]:
+        if member.generation is None and related_member.generation is not None:
+            member.generation = related_member.generation - 1
+            return True
+
+        if member.generation is not None and related_member.generation is None:
+            related_member.generation = member.generation + 1
+            return True
+
+    if relationship_type in ["Son", "Daughter"]:
+        if member.generation is None and related_member.generation is not None:
+            member.generation = related_member.generation + 1
+            return True
+
+        if member.generation is not None and related_member.generation is None:
+            related_member.generation = member.generation - 1
+            return True
+
+    if relationship_type in ["Grandfather", "Grandmother"]:
+        if member.generation is None and related_member.generation is not None:
+            member.generation = related_member.generation - 2
+            return True
+
+        if member.generation is not None and related_member.generation is None:
+            related_member.generation = member.generation + 2
+            return True
+
+    if relationship_type == "Grandchild":
+        if member.generation is None and related_member.generation is not None:
+            member.generation = related_member.generation + 2
+            return True
+
+        if member.generation is not None and related_member.generation is None:
+            related_member.generation = member.generation - 2
+            return True
+
+    if relationship_type in [
+        "Husband",
+        "Wife",
+        "Spouse",
+        "Brother",
+        "Sister",
+        "Cousin"
+    ]:
+        if member.generation is None and related_member.generation is not None:
+            member.generation = related_member.generation
+            return True
+
+        if member.generation is not None and related_member.generation is None:
+            related_member.generation = member.generation
+            return True
+
+    return False
 
 
 @admin_bp.route("/dashboard")
@@ -127,6 +190,68 @@ def members():
     )
 
 
+@admin_bp.route("/family-tree")
+@login_required
+@admin_required
+def family_tree():
+    generation_filter = request.args.get(
+        "generation",
+        type=int
+    )
+
+    query = FamilyMember.query
+
+    if generation_filter:
+        query = query.filter_by(
+            generation=generation_filter
+        )
+
+    family_members = query.order_by(
+        FamilyMember.generation.asc().nullslast(),
+        FamilyMember.full_name.asc()
+    ).all()
+
+    generations = [
+        generation[0]
+        for generation in db.session.query(
+            FamilyMember.generation
+        )
+        .filter(
+            FamilyMember.generation.isnot(None)
+        )
+        .distinct()
+        .order_by(
+            FamilyMember.generation.asc()
+        )
+        .all()
+    ]
+
+    parent_child_relationships = Relationship.query.filter(
+        Relationship.relationship_type.in_(
+            ["Father", "Mother"]
+        )
+    ).all()
+
+    tree_connections = []
+
+    for relationship in parent_child_relationships:
+        tree_connections.append(
+            {
+                "parent": relationship.member,
+                "child": relationship.related_member,
+                "relationship_type": relationship.relationship_type
+            }
+        )
+
+    return render_template(
+        "admin/family_tree.html",
+        family_members=family_members,
+        generations=generations,
+        generation_filter=generation_filter,
+        tree_connections=tree_connections
+    )
+
+
 @admin_bp.route("/members/add", methods=["GET", "POST"])
 @login_required
 @admin_required
@@ -169,10 +294,16 @@ def add_member():
         db.session.add(member)
         db.session.commit()
 
-        flash("Family member added successfully.", "success")
+        flash(
+            "Family member added successfully.",
+            "success"
+        )
 
         return redirect(
-            url_for("admin.member_detail", member_id=member.id)
+            url_for(
+                "admin.member_detail",
+                member_id=member.id
+            )
         )
 
     return render_template(
@@ -181,7 +312,10 @@ def add_member():
     )
 
 
-@admin_bp.route("/members/<int:member_id>", methods=["GET", "POST"])
+@admin_bp.route(
+    "/members/<int:member_id>",
+    methods=["GET", "POST"]
+)
 @login_required
 @admin_required
 def member_detail(member_id):
@@ -191,10 +325,15 @@ def member_detail(member_id):
 
     available_members = FamilyMember.query.filter(
         FamilyMember.id != member.id
-    ).order_by(FamilyMember.full_name.asc()).all()
+    ).order_by(
+        FamilyMember.full_name.asc()
+    ).all()
 
     relationship_form.related_member_id.choices = [
-        (family_member.id, family_member.full_name)
+        (
+            family_member.id,
+            family_member.full_name
+        )
         for family_member in available_members
     ]
 
@@ -218,7 +357,10 @@ def member_detail(member_id):
             )
 
             return redirect(
-                url_for("admin.member_detail", member_id=member.id)
+                url_for(
+                    "admin.member_detail",
+                    member_id=member.id
+                )
             )
 
         relationship = Relationship(
@@ -251,20 +393,37 @@ def member_detail(member_id):
 
                 db.session.add(reverse_relationship)
 
-        db.session.commit()
-
-        flash(
-            "Relationship added successfully.",
-            "success"
+        generation_updated = assign_generation_from_relationship(
+            member,
+            related_member,
+            relationship_type
         )
 
+        db.session.commit()
+
+        if generation_updated:
+            flash(
+                "Relationship added and generation assigned automatically.",
+                "success"
+            )
+        else:
+            flash(
+                "Relationship added successfully.",
+                "success"
+            )
+
         return redirect(
-            url_for("admin.member_detail", member_id=member.id)
+            url_for(
+                "admin.member_detail",
+                member_id=member.id
+            )
         )
 
     relationships = Relationship.query.filter_by(
         member_id=member.id
-    ).order_by(Relationship.created_at.desc()).all()
+    ).order_by(
+        Relationship.created_at.desc()
+    ).all()
 
     return render_template(
         "admin/member_detail.html",
@@ -290,38 +449,49 @@ def edit_member(member_id):
         member.date_of_birth = form.date_of_birth.data
         member.gender = form.gender.data or None
         member.blood_group = form.blood_group.data or None
+
         member.phone = (
             form.phone.data.strip()
             if form.phone.data
             else None
         )
+
         member.email = (
             form.email.data.strip()
             if form.email.data
             else None
         )
+
         member.permanent_address = (
             form.permanent_address.data.strip()
             if form.permanent_address.data
             else None
         )
+
         member.current_address = (
             form.current_address.data.strip()
             if form.current_address.data
             else None
         )
+
         member.occupation = (
             form.occupation.data.strip()
             if form.occupation.data
             else None
         )
-        member.marital_status = form.marital_status.data or None
+
+        member.marital_status = (
+            form.marital_status.data or None
+        )
+
         member.emergency_contact = (
             form.emergency_contact.data.strip()
             if form.emergency_contact.data
             else None
         )
+
         member.generation = form.generation.data
+
         member.bio = (
             form.bio.data.strip()
             if form.bio.data
@@ -336,7 +506,10 @@ def edit_member(member_id):
         )
 
         return redirect(
-            url_for("admin.member_detail", member_id=member.id)
+            url_for(
+                "admin.member_detail",
+                member_id=member.id
+            )
         )
 
     return render_template(
@@ -363,7 +536,10 @@ def delete_member(member_id):
         )
 
         return redirect(
-            url_for("admin.member_detail", member_id=member.id)
+            url_for(
+                "admin.member_detail",
+                member_id=member.id
+            )
         )
 
     Relationship.query.filter(

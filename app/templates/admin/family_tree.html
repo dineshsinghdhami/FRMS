@@ -1,0 +1,349 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Family Tree | Family Record Management System
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+
+    <h2 class="fw-bold mb-1">
+        Family Tree
+    </h2>
+
+    <p class="text-muted mb-0">
+        View family members and their parent-child connections.
+    </p>
+
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <form method="GET">
+
+            <div class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+
+                    <label class="form-label">
+                        Filter by Generation
+                    </label>
+
+                    <select
+                        name="generation"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            All Generations
+                        </option>
+
+                        {% for generation in generations %}
+
+                            <option
+                                value="{{ generation }}"
+                                {% if generation_filter == generation %}
+                                    selected
+                                {% endif %}
+                            >
+                                Generation {{ generation }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-auto">
+
+                    <button
+                        type="submit"
+                        class="btn btn-dark"
+                    >
+                        Apply Filter
+                    </button>
+
+                </div>
+
+                {% if generation_filter %}
+
+                    <div class="col-md-auto">
+
+                        <a
+                            href="{{ url_for('admin.family_tree') }}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Clear
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% if tree_connections and not generation_filter %}
+
+    <div class="card border-0 shadow-sm mb-5">
+
+        <div class="card-header bg-white py-3">
+
+            <h5 class="mb-0">
+                Parent-Child Connections
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            {% for connection in tree_connections %}
+
+                <div class="d-flex align-items-center flex-wrap gap-3 py-3">
+
+                    <a
+                        href="{{ url_for(
+                            'admin.member_detail',
+                            member_id=connection.parent.id
+                        ) }}"
+                        class="text-decoration-none"
+                    >
+
+                        <div class="border rounded p-3 text-center bg-light">
+                            <strong class="d-block text-dark">
+                                {{ connection.parent.full_name }}
+                            </strong>
+
+                            <small class="text-muted">
+                                {{ connection.relationship_type }}
+                            </small>
+                        </div>
+
+                    </a>
+
+                    <div class="text-muted fw-bold">
+                        →
+                    </div>
+
+                    <a
+                        href="{{ url_for(
+                            'admin.member_detail',
+                            member_id=connection.child.id
+                        ) }}"
+                        class="text-decoration-none"
+                    >
+
+                        <div class="border rounded p-3 text-center bg-light">
+                            <strong class="d-block text-dark">
+                                {{ connection.child.full_name }}
+                            </strong>
+
+                            <small class="text-muted">
+                                Child
+                            </small>
+                        </div>
+
+                    </a>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+{% endif %}
+
+{% if family_members %}
+
+    {% for generation in generations %}
+
+        {% set generation_members = family_members
+            | selectattr(
+                "generation",
+                "equalto",
+                generation
+            )
+            | list
+        %}
+
+        {% if generation_members %}
+
+            <div class="mb-5">
+
+                <div class="d-flex align-items-center mb-3">
+
+                    <h4 class="fw-bold mb-0">
+                        Generation {{ generation }}
+                    </h4>
+
+                    <span class="badge text-bg-light border ms-2">
+                        {{ generation_members|length }}
+                        member{% if generation_members|length != 1 %}s{% endif %}
+                    </span>
+
+                </div>
+
+                <div class="row g-3">
+
+                    {% for member in generation_members %}
+
+                        <div class="col-12 col-md-6 col-xl-3">
+
+                            <a
+                                href="{{ url_for(
+                                    'admin.member_detail',
+                                    member_id=member.id
+                                ) }}"
+                                class="text-decoration-none text-dark"
+                            >
+
+                                <div class="card border-0 shadow-sm h-100">
+
+                                    <div class="card-body text-center p-4">
+
+                                        <div
+                                            class="rounded-circle bg-light border d-flex align-items-center justify-content-center mx-auto mb-3"
+                                            style="width: 80px; height: 80px;"
+                                        >
+
+                                            <span class="fs-3 text-muted">
+                                                {{ member.full_name[0] }}
+                                            </span>
+
+                                        </div>
+
+                                        <h5 class="fw-bold mb-1">
+                                            {{ member.full_name }}
+                                        </h5>
+
+                                        <p class="text-muted small mb-2">
+                                            {{ member.occupation or "No occupation added" }}
+                                        </p>
+
+                                        <span class="badge text-bg-dark">
+                                            Generation {{ member.generation }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </a>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        {% endif %}
+
+    {% endfor %}
+
+    {% set no_generation_members = family_members
+        | selectattr("generation", "equalto", none)
+        | list
+    %}
+
+    {% if no_generation_members and not generation_filter %}
+
+        <div class="mb-5">
+
+            <h4 class="fw-bold mb-3">
+                Generation Not Assigned
+            </h4>
+
+            <div class="row g-3">
+
+                {% for member in no_generation_members %}
+
+                    <div class="col-12 col-md-6 col-xl-3">
+
+                        <a
+                            href="{{ url_for(
+                                'admin.member_detail',
+                                member_id=member.id
+                            ) }}"
+                            class="text-decoration-none text-dark"
+                        >
+
+                            <div class="card border-0 shadow-sm h-100">
+
+                                <div class="card-body text-center p-4">
+
+                                    <div
+                                        class="rounded-circle bg-light border d-flex align-items-center justify-content-center mx-auto mb-3"
+                                        style="width: 80px; height: 80px;"
+                                    >
+
+                                        <span class="fs-3 text-muted">
+                                            {{ member.full_name[0] }}
+                                        </span>
+
+                                    </div>
+
+                                    <h5 class="fw-bold mb-1">
+                                        {{ member.full_name }}
+                                    </h5>
+
+                                    <p class="text-muted small mb-0">
+                                        {{ member.occupation or "No occupation added" }}
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </a>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+{% else %}
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body text-center p-5">
+
+            <h5>
+                No family members found
+            </h5>
+
+            <p class="text-muted">
+                Add family members to start building your family tree.
+            </p>
+
+            <a
+                href="{{ url_for('admin.add_member') }}"
+                class="btn btn-dark"
+            >
+                Add Family Member
+            </a>
+
+        </div>
+
+    </div>
+
+{% endif %}
+
+{% endblock %}

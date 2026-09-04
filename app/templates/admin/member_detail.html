@@ -21,6 +21,13 @@
     <div class="d-flex gap-2">
 
         <a
+            href="{{ url_for('timeline.member_timeline', member_id=member.id) }}"
+            class="btn btn-outline-dark"
+        >
+            Life Timeline
+        </a>
+
+        <a
             href="{{ url_for('admin.edit_member', member_id=member.id) }}"
             class="btn btn-dark"
         >
@@ -64,11 +71,9 @@
                 </p>
 
                 {% if member.generation %}
-
                     <span class="badge text-bg-dark">
                         Generation {{ member.generation }}
                     </span>
-
                 {% endif %}
 
             </div>
@@ -350,8 +355,7 @@
                                         <td>
 
                                             {% if relationship.related_member.generation %}
-                                                Generation
-                                                {{ relationship.related_member.generation }}
+                                                Generation {{ relationship.related_member.generation }}
                                             {% else %}
                                                 -
                                             {% endif %}

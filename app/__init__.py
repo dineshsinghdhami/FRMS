@@ -21,6 +21,7 @@ def create_app():
     from app.models.user import User
     from app.models.family_member import FamilyMember
     from app.models.relationship import Relationship
+    from app.models.timeline_event import TimelineEvent
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -33,6 +34,9 @@ def create_app():
 
     from app.routes.admin import admin_bp
     app.register_blueprint(admin_bp)
+
+    from app.routes.timeline import timeline_bp
+    app.register_blueprint(timeline_bp)
 
     @app.route("/")
     @login_required

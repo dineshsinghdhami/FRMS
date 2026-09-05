@@ -1,0 +1,230 @@
+{% extends "member/base.html" %}
+
+{% block title %}
+My Profile | Family Record Management System
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+
+        <h2 class="fw-bold mb-1">
+            My Profile
+        </h2>
+
+        <p class="text-muted mb-0">
+            View your personal and family information.
+        </p>
+
+    </div>
+
+</div>
+
+<div class="row g-4">
+
+    <div class="col-12 col-lg-4">
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-body text-center p-4">
+
+                <div
+                    class="rounded-circle bg-light border d-flex align-items-center justify-content-center mx-auto mb-3"
+                    style="width: 110px; height: 110px;"
+                >
+
+                    <span class="fs-1 text-muted">
+                        {{ member.full_name[0] }}
+                    </span>
+
+                </div>
+
+                <h4 class="fw-bold mb-1">
+                    {{ member.full_name }}
+                </h4>
+
+                <p class="text-muted mb-3">
+                    {{ member.occupation or "Occupation not added" }}
+                </p>
+
+                {% if member.generation %}
+
+                    <span class="badge text-bg-dark">
+                        Generation {{ member.generation }}
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-12 col-lg-8">
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white py-3">
+
+                <h5 class="mb-0">
+                    Personal Information
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted d-block">
+                            Date of Birth
+                        </small>
+
+                        <strong>
+                            {{ member.date_of_birth or "-" }}
+                        </strong>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted d-block">
+                            Gender
+                        </small>
+
+                        <strong>
+                            {{ member.gender or "-" }}
+                        </strong>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted d-block">
+                            Blood Group
+                        </small>
+
+                        <strong>
+                            {{ member.blood_group or "-" }}
+                        </strong>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted d-block">
+                            Marital Status
+                        </small>
+
+                        <strong>
+                            {{ member.marital_status or "-" }}
+                        </strong>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted d-block">
+                            Phone
+                        </small>
+
+                        <strong>
+                            {{ member.phone or "-" }}
+                        </strong>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted d-block">
+                            Email
+                        </small>
+
+                        <strong>
+                            {{ member.email or "-" }}
+                        </strong>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted d-block">
+                            Permanent Address
+                        </small>
+
+                        <strong>
+                            {{ member.permanent_address or "-" }}
+                        </strong>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted d-block">
+                            Current Address
+                        </small>
+
+                        <strong>
+                            {{ member.current_address or "-" }}
+                        </strong>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted d-block">
+                            Emergency Contact
+                        </small>
+
+                        <strong>
+                            {{ member.emergency_contact or "-" }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-header bg-white py-3">
+
+                <h5 class="mb-0">
+                    Biography
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                {% if member.bio %}
+
+                    <p class="mb-0">
+                        {{ member.bio }}
+                    </p>
+
+                {% else %}
+
+                    <p class="text-muted mb-0">
+                        No biography has been added.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

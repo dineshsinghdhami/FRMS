@@ -1,5 +1,5 @@
-from flask import Flask
-from flask_login import login_required
+from flask import Flask, redirect, url_for
+from flask_login import current_user, login_required
 
 from config import Config
 from app.extensions import csrf, db, login_manager, migrate
@@ -38,9 +38,22 @@ def create_app():
     from app.routes.timeline import timeline_bp
     app.register_blueprint(timeline_bp)
 
+    from app.routes.member import member_bp
+    app.register_blueprint(member_bp)
+
     @app.route("/")
     @login_required
     def home():
+        if current_user.role == "admin":
+            return redirect(
+                url_for("admin.dashboard")
+            )
+
+        if current_user.role == "member":
+            return redirect(
+                url_for("member.dashboard")
+            )
+
         return """
         <h2>Family Record Management System</h2>
         <p>You are logged in successfully.</p>

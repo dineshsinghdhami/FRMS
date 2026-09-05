@@ -1,0 +1,146 @@
+{% extends "member/base.html" %}
+
+{% block title %}
+Family Members | Family Record Management System
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+
+    <h2 class="fw-bold mb-1">
+        Family Members
+    </h2>
+
+    <p class="text-muted mb-0">
+        Browse members of the family.
+    </p>
+
+</div>
+
+<form method="GET" class="mb-4">
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search by name, occupation, or location"
+            value="{{ search }}"
+        >
+
+        <button
+            type="submit"
+            class="btn btn-dark"
+        >
+            Search
+        </button>
+
+        {% if search %}
+
+            <a
+                href="{{ url_for('member.family_members') }}"
+                class="btn btn-outline-secondary"
+            >
+                Clear
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</form>
+
+<div class="row g-3">
+
+    {% for member in family_members %}
+
+        <div class="col-12 col-md-6 col-xl-4">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+
+                        <div
+                            class="rounded-circle bg-light border d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="width: 60px; height: 60px;"
+                        >
+
+                            <span class="fs-4 text-muted">
+                                {{ member.full_name[0] }}
+                            </span>
+
+                        </div>
+
+                        <div>
+
+                            <h5 class="fw-bold mb-1">
+                                {{ member.full_name }}
+                            </h5>
+
+                            <p class="text-muted small mb-0">
+                                {{ member.occupation or "Occupation not added" }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        {% if member.generation %}
+
+                            <span class="badge text-bg-dark">
+                                Generation {{ member.generation }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                    <a
+                        href="{{ url_for(
+                            'member.family_member_detail',
+                            member_id=member.id
+                        ) }}"
+                        class="btn btn-outline-dark btn-sm"
+                    >
+                        View Profile
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% else %}
+
+        <div class="col-12">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body text-center p-5">
+
+                    <h5>
+                        No family members found
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        Try a different search term.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

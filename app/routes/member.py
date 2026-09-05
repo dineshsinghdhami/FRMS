@@ -3,8 +3,10 @@ from flask_login import current_user, login_required
 
 from app.extensions import db
 from app.forms.account import ChangePasswordForm
+from app.forms.activity import ActivityForm
 from app.forms.member import FamilyMemberForm
 from app.forms.timeline import TimelineEventForm
+from app.models.activity import Activity
 from app.models.family_member import FamilyMember
 from app.models.relationship import Relationship
 from app.models.timeline_event import TimelineEvent
@@ -156,7 +158,6 @@ def change_password():
     form = ChangePasswordForm()
 
     if form.validate_on_submit():
-
         if not current_user.check_password(
             form.current_password.data
         ):
@@ -288,23 +289,19 @@ def edit_timeline_event(event_id):
 
     if form.validate_on_submit():
         event.title = form.title.data.strip()
-
         event.description = (
             form.description.data.strip()
             if form.description.data
             else None
         )
-
         event.event_date = form.event_date.data
         event.year = form.year.data
         event.category = form.category.data
-
         event.location = (
             form.location.data.strip()
             if form.location.data
             else None
         )
-
         event.privacy_level = form.privacy_level.data
 
         db.session.commit()
@@ -478,4 +475,162 @@ def family_member_detail(member_id):
         member=member,
         relationships=relationships,
         timeline_events=visible_timeline_events
+    )
+
+
+@member_bp.route("/activities", methods=["GET", "POST"])
+@login_required
+def activities():
+    if not member_only():
+        return render_template(
+            "errors/403.html"
+        ), 403
+
+    form = ActivityForm()
+
+    if form.validate_on_submit():
+        activity = Activity(
+            title=form.title.data.strip(),
+            description=(
+                form.description.data.strip()
+                if form.description.data
+                else None
+            ),
+            activity_date=form.activity_date.data,
+            location=(
+                form.location.data.strip()
+                if form.location.data
+                else None
+            ),
+            category=form.category.data,
+            privacy_level=form.privacy_level.data,
+            created_by=current_user.id
+        )
+
+        db.session.add(activity)
+        db.session.commit()
+
+        flash(
+            "Activity added successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("member.activities")
+        )
+
+    activities = Activity.query.filter(
+        db.or_(
+            Activity.privacy_level == "Family",
+            Activity.created_by == current_user.id
+        )
+    ).order_by(
+        Activity.activity_date.desc().nullslast(),
+        Activity.created_at.desc()
+    ).all()
+
+    return render_template(
+        "member/activities.html",
+        form=form,
+        activities=activities
+    )
+
+
+@member_bp.route(
+    "/activities/<int:activity_id>/edit",
+    methods=["GET", "POST"]
+)
+@login_required
+def edit_activity(activity_id):
+    if not member_only():
+        return render_template(
+            "errors/403.html"
+        ), 403
+
+    activity = Activity.query.get_or_404(
+        activity_id
+    )
+
+    if activity.created_by != current_user.id:
+        return render_template(
+            "errors/403.html"
+        ), 403
+
+    form = ActivityForm(
+        obj=activity
+    )
+
+    if form.validate_on_submit():
+        activity.title = form.title.data.strip()
+
+        activity.description = (
+            form.description.data.strip()
+            if form.description.data
+            else None
+        )
+
+        activity.activity_date = form.activity_date.data
+
+        activity.location = (
+            form.location.data.strip()
+            if form.location.data
+            else None
+        )
+
+        activity.category = form.category.data
+        activity.privacy_level = form.privacy_level.data
+
+        db.session.commit()
+
+        flash(
+            "Activity updated successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("member.activities")
+        )
+
+    return render_template(
+        "member/edit_activity.html",
+        activity=activity,
+        form=form
+    )
+
+
+@member_bp.route(
+    "/activities/<int:activity_id>/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_activity(activity_id):
+    if not member_only():
+        return render_template(
+            "errors/403.html"
+        ), 403
+
+    activity = Activity.query.get_or_404(
+        activity_id
+    )
+
+    if activity.created_by != current_user.id:
+        return render_template(
+            "errors/403.html"
+        ), 403
+
+    activity_title = activity.title
+
+    db.session.delete(
+        activity
+    )
+
+    db.session.commit()
+
+    flash(
+        f"{activity_title} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("member.activities")
     )

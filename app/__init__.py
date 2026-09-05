@@ -7,7 +7,6 @@ from app.extensions import csrf, db, login_manager, migrate
 
 def create_app():
     app = Flask(__name__)
-
     app.config.from_object(Config)
 
     db.init_app(app)
@@ -22,12 +21,19 @@ def create_app():
     from app.models.family_member import FamilyMember
     from app.models.relationship import Relationship
     from app.models.timeline_event import TimelineEvent
+    from app.models.activity import Activity
 
     @login_manager.user_loader
     def load_user(user_id):
-        return db.session.get(User, int(user_id))
+        return db.session.get(
+            User,
+            int(user_id)
+        )
 
-    migrate.init_app(app, db)
+    migrate.init_app(
+        app,
+        db
+    )
 
     from app.routes.auth import auth_bp
     app.register_blueprint(auth_bp)

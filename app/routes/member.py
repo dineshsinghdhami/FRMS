@@ -1,17 +1,23 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+import os
+import uuid
+
+from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from werkzeug.utils import secure_filename
 
 from app.extensions import db
 from app.forms.account import ChangePasswordForm
 from app.forms.activity import ActivityForm
 from app.forms.announcement import AnnouncementForm
 from app.forms.event import EventForm
+from app.forms.gallery import GalleryPhotoForm
 from app.forms.member import FamilyMemberForm
 from app.forms.timeline import TimelineEventForm
 from app.models.activity import Activity
 from app.models.announcement import Announcement
 from app.models.event import Event
 from app.models.family_member import FamilyMember
+from app.models.gallery_photo import GalleryPhoto
 from app.models.relationship import Relationship
 from app.models.timeline_event import TimelineEvent
 
@@ -31,6 +37,43 @@ def get_current_family_member():
 
 def member_only():
     return current_user.role == "member"
+
+
+def save_gallery_photo(photo_file):
+    upload_folder = os.path.join(
+        current_app.root_path,
+        "static",
+        "uploads",
+        "gallery"
+    )
+
+    os.makedirs(
+        upload_folder,
+        exist_ok=True
+    )
+
+    original_filename = secure_filename(
+        photo_file.filename
+    )
+
+    extension = os.path.splitext(
+        original_filename
+    )[1].lower()
+
+    unique_filename = (
+        f"{uuid.uuid4().hex}{extension}"
+    )
+
+    file_path = os.path.join(
+        upload_folder,
+        unique_filename
+    )
+
+    photo_file.save(
+        file_path
+    )
+
+    return unique_filename, original_filename
 
 
 @member_bp.route("/dashboard")
@@ -816,4 +859,98 @@ def delete_announcement(announcement_id):
 
     return redirect(
         url_for("member.announcements")
+    )
+
+
+@member_bp.route("/gallery", methods=["GET", "POST"])
+@login_required
+def gallery():
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    form = GalleryPhotoForm()
+
+    if form.validate_on_submit():
+        unique_filename, original_filename = save_gallery_photo(
+            form.photo.data
+        )
+
+        photo = GalleryPhoto(
+            title=form.title.data.strip(),
+            description=(
+                form.description.data.strip()
+                if form.description.data
+                else None
+            ),
+            filename=unique_filename,
+            original_filename=original_filename,
+            category=form.category.data,
+            privacy_level=form.privacy_level.data,
+            uploaded_by=current_user.id
+        )
+
+        db.session.add(photo)
+        db.session.commit()
+
+        flash(
+            "Photo uploaded successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("member.gallery")
+        )
+
+    photos = GalleryPhoto.query.filter(
+        db.or_(
+            GalleryPhoto.privacy_level == "Family",
+            GalleryPhoto.uploaded_by == current_user.id
+        )
+    ).order_by(
+        GalleryPhoto.uploaded_at.desc()
+    ).all()
+
+    return render_template(
+        "member/gallery.html",
+        form=form,
+        photos=photos
+    )
+
+@member_bp.route(
+    "/gallery/<int:photo_id>/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_gallery_photo(photo_id):
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    photo = GalleryPhoto.query.get_or_404(photo_id)
+
+    if photo.uploaded_by != current_user.id:
+        return render_template("errors/403.html"), 403
+
+    file_path = os.path.join(
+        current_app.root_path,
+        "static",
+        "uploads",
+        "gallery",
+        photo.filename
+    )
+
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    photo_title = photo.title
+
+    db.session.delete(photo)
+    db.session.commit()
+
+    flash(
+        f"{photo_title} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("member.gallery")
     )

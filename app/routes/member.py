@@ -4,10 +4,12 @@ from flask_login import current_user, login_required
 from app.extensions import db
 from app.forms.account import ChangePasswordForm
 from app.forms.activity import ActivityForm
+from app.forms.announcement import AnnouncementForm
 from app.forms.event import EventForm
 from app.forms.member import FamilyMemberForm
 from app.forms.timeline import TimelineEventForm
 from app.models.activity import Activity
+from app.models.announcement import Announcement
 from app.models.event import Event
 from app.models.family_member import FamilyMember
 from app.models.relationship import Relationship
@@ -694,4 +696,124 @@ def delete_event(event_id):
 
     return redirect(
         url_for("member.events")
+    )
+
+
+@member_bp.route("/announcements", methods=["GET", "POST"])
+@login_required
+def announcements():
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    form = AnnouncementForm()
+
+    if form.validate_on_submit():
+        announcement = Announcement(
+            title=form.title.data.strip(),
+            message=form.message.data.strip(),
+            category=form.category.data,
+            priority=form.priority.data,
+            privacy_level=form.privacy_level.data,
+            created_by=current_user.id
+        )
+
+        db.session.add(announcement)
+        db.session.commit()
+
+        flash(
+            "Announcement added successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("member.announcements")
+        )
+
+    announcements = Announcement.query.filter(
+        db.or_(
+            Announcement.privacy_level == "Family",
+            Announcement.created_by == current_user.id
+        )
+    ).order_by(
+        Announcement.created_at.desc()
+    ).all()
+
+    return render_template(
+        "member/announcements.html",
+        form=form,
+        announcements=announcements
+    )
+
+
+@member_bp.route(
+    "/announcements/<int:announcement_id>/edit",
+    methods=["GET", "POST"]
+)
+@login_required
+def edit_announcement(announcement_id):
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    announcement = Announcement.query.get_or_404(
+        announcement_id
+    )
+
+    if announcement.created_by != current_user.id:
+        return render_template("errors/403.html"), 403
+
+    form = AnnouncementForm(obj=announcement)
+
+    if form.validate_on_submit():
+        announcement.title = form.title.data.strip()
+        announcement.message = form.message.data.strip()
+        announcement.category = form.category.data
+        announcement.priority = form.priority.data
+        announcement.privacy_level = form.privacy_level.data
+
+        db.session.commit()
+
+        flash(
+            "Announcement updated successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("member.announcements")
+        )
+
+    return render_template(
+        "member/edit_announcement.html",
+        announcement=announcement,
+        form=form
+    )
+
+
+@member_bp.route(
+    "/announcements/<int:announcement_id>/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_announcement(announcement_id):
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    announcement = Announcement.query.get_or_404(
+        announcement_id
+    )
+
+    if announcement.created_by != current_user.id:
+        return render_template("errors/403.html"), 403
+
+    announcement_title = announcement.title
+
+    db.session.delete(announcement)
+    db.session.commit()
+
+    flash(
+        f"{announcement_title} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("member.announcements")
     )

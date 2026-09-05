@@ -2,6 +2,8 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.extensions import db
+from app.forms.account import ChangePasswordForm
+from app.forms.member import FamilyMemberForm
 from app.forms.timeline import TimelineEventForm
 from app.models.family_member import FamilyMember
 from app.models.relationship import Relationship
@@ -54,6 +56,151 @@ def profile():
     return render_template(
         "member/profile.html",
         member=member
+    )
+
+
+@member_bp.route(
+    "/profile/edit",
+    methods=["GET", "POST"]
+)
+@login_required
+def edit_profile():
+    if not member_only():
+        return render_template(
+            "errors/403.html"
+        ), 403
+
+    member = get_current_family_member()
+
+    form = FamilyMemberForm(obj=member)
+
+    if form.validate_on_submit():
+        member.full_name = form.full_name.data.strip()
+        member.date_of_birth = form.date_of_birth.data
+        member.gender = form.gender.data
+        member.blood_group = form.blood_group.data
+
+        member.phone = (
+            form.phone.data.strip()
+            if form.phone.data
+            else None
+        )
+
+        member.email = (
+            form.email.data.strip()
+            if form.email.data
+            else None
+        )
+
+        member.permanent_address = (
+            form.permanent_address.data.strip()
+            if form.permanent_address.data
+            else None
+        )
+
+        member.current_address = (
+            form.current_address.data.strip()
+            if form.current_address.data
+            else None
+        )
+
+        member.occupation = (
+            form.occupation.data.strip()
+            if form.occupation.data
+            else None
+        )
+
+        member.marital_status = form.marital_status.data
+
+        member.emergency_contact = (
+            form.emergency_contact.data.strip()
+            if form.emergency_contact.data
+            else None
+        )
+
+        member.bio = (
+            form.bio.data.strip()
+            if form.bio.data
+            else None
+        )
+
+        db.session.commit()
+
+        flash(
+            "Profile updated successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("member.profile")
+        )
+
+    return render_template(
+        "member/edit_profile.html",
+        member=member,
+        form=form
+    )
+
+
+@member_bp.route(
+    "/change-password",
+    methods=["GET", "POST"]
+)
+@login_required
+def change_password():
+    if not member_only():
+        return render_template(
+            "errors/403.html"
+        ), 403
+
+    form = ChangePasswordForm()
+
+    if form.validate_on_submit():
+
+        if not current_user.check_password(
+            form.current_password.data
+        ):
+            flash(
+                "Current password is incorrect.",
+                "danger"
+            )
+
+            return render_template(
+                "member/change_password.html",
+                form=form
+            )
+
+        if current_user.check_password(
+            form.new_password.data
+        ):
+            flash(
+                "New password must be different from your current password.",
+                "warning"
+            )
+
+            return render_template(
+                "member/change_password.html",
+                form=form
+            )
+
+        current_user.set_password(
+            form.new_password.data
+        )
+
+        db.session.commit()
+
+        flash(
+            "Password changed successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("member.profile")
+        )
+
+    return render_template(
+        "member/change_password.html",
+        form=form
     )
 
 

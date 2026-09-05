@@ -1,0 +1,165 @@
+{% extends "member/base.html" %}
+
+{% block title %}
+Edit My Profile | Family Record Management System
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+
+        <h2 class="fw-bold mb-1">
+            Edit My Profile
+        </h2>
+
+        <p class="text-muted mb-0">
+            Update your personal information.
+        </p>
+
+    </div>
+
+    <a
+        href="{{ url_for('member.profile') }}"
+        class="btn btn-outline-secondary"
+    >
+        Back to Profile
+    </a>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-4">
+
+        <form method="POST">
+
+            {{ form.hidden_tag() }}
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+
+                    {{ form.full_name.label(class="form-label") }}
+
+                    {{ form.full_name(class="form-control") }}
+
+                </div>
+
+                <div class="col-md-6">
+
+                    {{ form.date_of_birth.label(class="form-label") }}
+
+                    {{ form.date_of_birth(class="form-control") }}
+
+                </div>
+
+                <div class="col-md-6">
+
+                    {{ form.gender.label(class="form-label") }}
+
+                    {{ form.gender(class="form-select") }}
+
+                </div>
+
+                <div class="col-md-6">
+
+                    {{ form.blood_group.label(class="form-label") }}
+
+                    {{ form.blood_group(class="form-select") }}
+
+                </div>
+
+                <div class="col-md-6">
+
+                    {{ form.phone.label(class="form-label") }}
+
+                    {{ form.phone(class="form-control") }}
+
+                </div>
+
+                <div class="col-md-6">
+
+                    {{ form.email.label(class="form-label") }}
+
+                    {{ form.email(class="form-control") }}
+
+                </div>
+
+                <div class="col-md-6">
+
+                    {{ form.occupation.label(class="form-label") }}
+
+                    {{ form.occupation(class="form-control") }}
+
+                </div>
+
+                <div class="col-md-6">
+
+                    {{ form.marital_status.label(class="form-label") }}
+
+                    {{ form.marital_status(class="form-select") }}
+
+                </div>
+
+                <div class="col-md-6">
+
+                    {{ form.permanent_address.label(class="form-label") }}
+
+                    {{ form.permanent_address(class="form-control") }}
+
+                </div>
+
+                <div class="col-md-6">
+
+                    {{ form.current_address.label(class="form-label") }}
+
+                    {{ form.current_address(class="form-control") }}
+
+                </div>
+
+                <div class="col-md-6">
+
+                    {{ form.emergency_contact.label(class="form-label") }}
+
+                    {{ form.emergency_contact(class="form-control") }}
+
+                </div>
+
+            </div>
+
+            <div class="mt-3">
+
+                {{ form.bio.label(class="form-label") }}
+
+                {{ form.bio(
+                    class="form-control",
+                    rows="5"
+                ) }}
+
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+
+                <a
+                    href="{{ url_for('member.profile') }}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
+                {{ form.submit(
+                    class="btn btn-dark",
+                    value="Save Changes"
+                ) }}
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

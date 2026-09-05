@@ -25,6 +25,7 @@ def create_app():
     from app.models.event import Event
     from app.models.announcement import Announcement
     from app.models.gallery_photo import GalleryPhoto
+    from app.models.document import Document
 
     @login_manager.user_loader
     def load_user(user_id):

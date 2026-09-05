@@ -1,7 +1,7 @@
 import os
 import uuid
 
-from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, flash, redirect, render_template, request, send_from_directory, url_for
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
@@ -9,12 +9,14 @@ from app.extensions import db
 from app.forms.account import ChangePasswordForm
 from app.forms.activity import ActivityForm
 from app.forms.announcement import AnnouncementForm
+from app.forms.document import DocumentForm
 from app.forms.event import EventForm
 from app.forms.gallery import GalleryPhotoForm
 from app.forms.member import FamilyMemberForm
 from app.forms.timeline import TimelineEventForm
 from app.models.activity import Activity
 from app.models.announcement import Announcement
+from app.models.document import Document
 from app.models.event import Event
 from app.models.family_member import FamilyMember
 from app.models.gallery_photo import GalleryPhoto
@@ -60,9 +62,7 @@ def save_gallery_photo(photo_file):
         original_filename
     )[1].lower()
 
-    unique_filename = (
-        f"{uuid.uuid4().hex}{extension}"
-    )
+    unique_filename = f"{uuid.uuid4().hex}{extension}"
 
     file_path = os.path.join(
         upload_folder,
@@ -70,6 +70,40 @@ def save_gallery_photo(photo_file):
     )
 
     photo_file.save(
+        file_path
+    )
+
+    return unique_filename, original_filename
+
+
+def save_document_file(document_file):
+    upload_folder = os.path.join(
+        current_app.root_path,
+        "uploads",
+        "documents"
+    )
+
+    os.makedirs(
+        upload_folder,
+        exist_ok=True
+    )
+
+    original_filename = secure_filename(
+        document_file.filename
+    )
+
+    extension = os.path.splitext(
+        original_filename
+    )[1].lower()
+
+    unique_filename = f"{uuid.uuid4().hex}{extension}"
+
+    file_path = os.path.join(
+        upload_folder,
+        unique_filename
+    )
+
+    document_file.save(
         file_path
     )
 
@@ -145,10 +179,7 @@ def edit_profile():
 
         db.session.commit()
 
-        flash(
-            "Profile updated successfully.",
-            "success"
-        )
+        flash("Profile updated successfully.", "success")
 
         return redirect(
             url_for("member.profile")
@@ -230,19 +261,11 @@ def timeline():
         event = TimelineEvent(
             member_id=member.id,
             title=form.title.data.strip(),
-            description=(
-                form.description.data.strip()
-                if form.description.data
-                else None
-            ),
+            description=form.description.data.strip() if form.description.data else None,
             event_date=form.event_date.data,
             year=form.year.data,
             category=form.category.data,
-            location=(
-                form.location.data.strip()
-                if form.location.data
-                else None
-            ),
+            location=form.location.data.strip() if form.location.data else None,
             privacy_level=form.privacy_level.data
         )
 
@@ -274,10 +297,7 @@ def timeline():
     )
 
 
-@member_bp.route(
-    "/timeline/<int:event_id>/edit",
-    methods=["GET", "POST"]
-)
+@member_bp.route("/timeline/<int:event_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_timeline_event(event_id):
     if not member_only():
@@ -293,19 +313,11 @@ def edit_timeline_event(event_id):
 
     if form.validate_on_submit():
         event.title = form.title.data.strip()
-        event.description = (
-            form.description.data.strip()
-            if form.description.data
-            else None
-        )
+        event.description = form.description.data.strip() if form.description.data else None
         event.event_date = form.event_date.data
         event.year = form.year.data
         event.category = form.category.data
-        event.location = (
-            form.location.data.strip()
-            if form.location.data
-            else None
-        )
+        event.location = form.location.data.strip() if form.location.data else None
         event.privacy_level = form.privacy_level.data
 
         db.session.commit()
@@ -327,10 +339,7 @@ def edit_timeline_event(event_id):
     )
 
 
-@member_bp.route(
-    "/timeline/<int:event_id>/delete",
-    methods=["POST"]
-)
+@member_bp.route("/timeline/<int:event_id>/delete", methods=["POST"])
 @login_required
 def delete_timeline_event(event_id):
     if not member_only():
@@ -481,17 +490,9 @@ def activities():
     if form.validate_on_submit():
         activity = Activity(
             title=form.title.data.strip(),
-            description=(
-                form.description.data.strip()
-                if form.description.data
-                else None
-            ),
+            description=form.description.data.strip() if form.description.data else None,
             activity_date=form.activity_date.data,
-            location=(
-                form.location.data.strip()
-                if form.location.data
-                else None
-            ),
+            location=form.location.data.strip() if form.location.data else None,
             category=form.category.data,
             privacy_level=form.privacy_level.data,
             created_by=current_user.id
@@ -500,10 +501,7 @@ def activities():
         db.session.add(activity)
         db.session.commit()
 
-        flash(
-            "Activity added successfully.",
-            "success"
-        )
+        flash("Activity added successfully.", "success")
 
         return redirect(
             url_for("member.activities")
@@ -526,10 +524,7 @@ def activities():
     )
 
 
-@member_bp.route(
-    "/activities/<int:activity_id>/edit",
-    methods=["GET", "POST"]
-)
+@member_bp.route("/activities/<int:activity_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_activity(activity_id):
     if not member_only():
@@ -544,26 +539,15 @@ def edit_activity(activity_id):
 
     if form.validate_on_submit():
         activity.title = form.title.data.strip()
-        activity.description = (
-            form.description.data.strip()
-            if form.description.data
-            else None
-        )
+        activity.description = form.description.data.strip() if form.description.data else None
         activity.activity_date = form.activity_date.data
-        activity.location = (
-            form.location.data.strip()
-            if form.location.data
-            else None
-        )
+        activity.location = form.location.data.strip() if form.location.data else None
         activity.category = form.category.data
         activity.privacy_level = form.privacy_level.data
 
         db.session.commit()
 
-        flash(
-            "Activity updated successfully.",
-            "success"
-        )
+        flash("Activity updated successfully.", "success")
 
         return redirect(
             url_for("member.activities")
@@ -576,10 +560,7 @@ def edit_activity(activity_id):
     )
 
 
-@member_bp.route(
-    "/activities/<int:activity_id>/delete",
-    methods=["POST"]
-)
+@member_bp.route("/activities/<int:activity_id>/delete", methods=["POST"])
 @login_required
 def delete_activity(activity_id):
     if not member_only():
@@ -616,18 +597,10 @@ def events():
     if form.validate_on_submit():
         event = Event(
             title=form.title.data.strip(),
-            description=(
-                form.description.data.strip()
-                if form.description.data
-                else None
-            ),
+            description=form.description.data.strip() if form.description.data else None,
             event_date=form.event_date.data,
             event_time=form.event_time.data,
-            location=(
-                form.location.data.strip()
-                if form.location.data
-                else None
-            ),
+            location=form.location.data.strip() if form.location.data else None,
             category=form.category.data,
             privacy_level=form.privacy_level.data,
             created_by=current_user.id
@@ -636,10 +609,7 @@ def events():
         db.session.add(event)
         db.session.commit()
 
-        flash(
-            "Event added successfully.",
-            "success"
-        )
+        flash("Event added successfully.", "success")
 
         return redirect(
             url_for("member.events")
@@ -662,10 +632,7 @@ def events():
     )
 
 
-@member_bp.route(
-    "/events/<int:event_id>/edit",
-    methods=["GET", "POST"]
-)
+@member_bp.route("/events/<int:event_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_event(event_id):
     if not member_only():
@@ -680,27 +647,16 @@ def edit_event(event_id):
 
     if form.validate_on_submit():
         event.title = form.title.data.strip()
-        event.description = (
-            form.description.data.strip()
-            if form.description.data
-            else None
-        )
+        event.description = form.description.data.strip() if form.description.data else None
         event.event_date = form.event_date.data
         event.event_time = form.event_time.data
-        event.location = (
-            form.location.data.strip()
-            if form.location.data
-            else None
-        )
+        event.location = form.location.data.strip() if form.location.data else None
         event.category = form.category.data
         event.privacy_level = form.privacy_level.data
 
         db.session.commit()
 
-        flash(
-            "Event updated successfully.",
-            "success"
-        )
+        flash("Event updated successfully.", "success")
 
         return redirect(
             url_for("member.events")
@@ -713,10 +669,7 @@ def edit_event(event_id):
     )
 
 
-@member_bp.route(
-    "/events/<int:event_id>/delete",
-    methods=["POST"]
-)
+@member_bp.route("/events/<int:event_id>/delete", methods=["POST"])
 @login_required
 def delete_event(event_id):
     if not member_only():
@@ -763,10 +716,7 @@ def announcements():
         db.session.add(announcement)
         db.session.commit()
 
-        flash(
-            "Announcement added successfully.",
-            "success"
-        )
+        flash("Announcement added successfully.", "success")
 
         return redirect(
             url_for("member.announcements")
@@ -788,10 +738,7 @@ def announcements():
     )
 
 
-@member_bp.route(
-    "/announcements/<int:announcement_id>/edit",
-    methods=["GET", "POST"]
-)
+@member_bp.route("/announcements/<int:announcement_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_announcement(announcement_id):
     if not member_only():
@@ -831,10 +778,7 @@ def edit_announcement(announcement_id):
     )
 
 
-@member_bp.route(
-    "/announcements/<int:announcement_id>/delete",
-    methods=["POST"]
-)
+@member_bp.route("/announcements/<int:announcement_id>/delete", methods=["POST"])
 @login_required
 def delete_announcement(announcement_id):
     if not member_only():
@@ -877,11 +821,7 @@ def gallery():
 
         photo = GalleryPhoto(
             title=form.title.data.strip(),
-            description=(
-                form.description.data.strip()
-                if form.description.data
-                else None
-            ),
+            description=form.description.data.strip() if form.description.data else None,
             filename=unique_filename,
             original_filename=original_filename,
             category=form.category.data,
@@ -892,10 +832,7 @@ def gallery():
         db.session.add(photo)
         db.session.commit()
 
-        flash(
-            "Photo uploaded successfully.",
-            "success"
-        )
+        flash("Photo uploaded successfully.", "success")
 
         return redirect(
             url_for("member.gallery")
@@ -916,10 +853,8 @@ def gallery():
         photos=photos
     )
 
-@member_bp.route(
-    "/gallery/<int:photo_id>/delete",
-    methods=["POST"]
-)
+
+@member_bp.route("/gallery/<int:photo_id>/delete", methods=["POST"])
 @login_required
 def delete_gallery_photo(photo_id):
     if not member_only():
@@ -953,4 +888,123 @@ def delete_gallery_photo(photo_id):
 
     return redirect(
         url_for("member.gallery")
+    )
+
+
+@member_bp.route("/documents", methods=["GET", "POST"])
+@login_required
+def documents():
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    form = DocumentForm()
+
+    if form.validate_on_submit():
+        unique_filename, original_filename = save_document_file(
+            form.document.data
+        )
+
+        document = Document(
+            title=form.title.data.strip(),
+            description=form.description.data.strip() if form.description.data else None,
+            filename=unique_filename,
+            original_filename=original_filename,
+            document_type=form.document_type.data,
+            privacy_level=form.privacy_level.data,
+            uploaded_by=current_user.id
+        )
+
+        db.session.add(document)
+        db.session.commit()
+
+        flash(
+            "Document uploaded successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("member.documents")
+        )
+
+    documents = Document.query.filter(
+        db.or_(
+            Document.privacy_level == "Family",
+            Document.uploaded_by == current_user.id
+        )
+    ).order_by(
+        Document.uploaded_at.desc()
+    ).all()
+
+    return render_template(
+        "member/documents.html",
+        form=form,
+        documents=documents
+    )
+
+
+@member_bp.route("/documents/<int:document_id>/download")
+@login_required
+def download_document(document_id):
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    document = Document.query.get_or_404(document_id)
+
+    can_access = (
+        document.privacy_level == "Family"
+        or document.uploaded_by == current_user.id
+    )
+
+    if not can_access:
+        return render_template("errors/403.html"), 403
+
+    upload_folder = os.path.join(
+        current_app.root_path,
+        "uploads",
+        "documents"
+    )
+
+    return send_from_directory(
+        upload_folder,
+        document.filename,
+        as_attachment=True,
+        download_name=document.original_filename
+    )
+
+@member_bp.route(
+    "/documents/<int:document_id>/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_document(document_id):
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    document = Document.query.get_or_404(document_id)
+
+    if document.uploaded_by != current_user.id:
+        return render_template("errors/403.html"), 403
+
+    file_path = os.path.join(
+        current_app.root_path,
+        "uploads",
+        "documents",
+        document.filename
+    )
+
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    document_title = document.title
+
+    db.session.delete(document)
+    db.session.commit()
+
+    flash(
+        f"{document_title} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("member.documents")
     )

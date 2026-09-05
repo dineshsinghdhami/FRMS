@@ -22,6 +22,7 @@ def create_app():
     from app.models.relationship import Relationship
     from app.models.timeline_event import TimelineEvent
     from app.models.activity import Activity
+    from app.models.event import Event
 
     @login_manager.user_loader
     def load_user(user_id):

@@ -4,9 +4,11 @@ from flask_login import current_user, login_required
 from app.extensions import db
 from app.forms.account import ChangePasswordForm
 from app.forms.activity import ActivityForm
+from app.forms.event import EventForm
 from app.forms.member import FamilyMemberForm
 from app.forms.timeline import TimelineEventForm
 from app.models.activity import Activity
+from app.models.event import Event
 from app.models.family_member import FamilyMember
 from app.models.relationship import Relationship
 from app.models.timeline_event import TimelineEvent
@@ -33,9 +35,7 @@ def member_only():
 @login_required
 def dashboard():
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     member = get_current_family_member()
 
@@ -49,9 +49,7 @@ def dashboard():
 @login_required
 def profile():
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     member = get_current_family_member()
 
@@ -61,19 +59,13 @@ def profile():
     )
 
 
-@member_bp.route(
-    "/profile/edit",
-    methods=["GET", "POST"]
-)
+@member_bp.route("/profile/edit", methods=["GET", "POST"])
 @login_required
 def edit_profile():
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     member = get_current_family_member()
-
     form = FamilyMemberForm(obj=member)
 
     if form.validate_on_submit():
@@ -81,50 +73,30 @@ def edit_profile():
         member.date_of_birth = form.date_of_birth.data
         member.gender = form.gender.data
         member.blood_group = form.blood_group.data
-
-        member.phone = (
-            form.phone.data.strip()
-            if form.phone.data
-            else None
-        )
-
-        member.email = (
-            form.email.data.strip()
-            if form.email.data
-            else None
-        )
-
+        member.phone = form.phone.data.strip() if form.phone.data else None
+        member.email = form.email.data.strip() if form.email.data else None
         member.permanent_address = (
             form.permanent_address.data.strip()
             if form.permanent_address.data
             else None
         )
-
         member.current_address = (
             form.current_address.data.strip()
             if form.current_address.data
             else None
         )
-
         member.occupation = (
             form.occupation.data.strip()
             if form.occupation.data
             else None
         )
-
         member.marital_status = form.marital_status.data
-
         member.emergency_contact = (
             form.emergency_contact.data.strip()
             if form.emergency_contact.data
             else None
         )
-
-        member.bio = (
-            form.bio.data.strip()
-            if form.bio.data
-            else None
-        )
+        member.bio = form.bio.data.strip() if form.bio.data else None
 
         db.session.commit()
 
@@ -144,16 +116,11 @@ def edit_profile():
     )
 
 
-@member_bp.route(
-    "/change-password",
-    methods=["GET", "POST"]
-)
+@member_bp.route("/change-password", methods=["GET", "POST"])
 @login_required
 def change_password():
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     form = ChangePasswordForm()
 
@@ -209,12 +176,9 @@ def change_password():
 @login_required
 def timeline():
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     member = get_current_family_member()
-
     form = TimelineEventForm()
 
     if form.validate_on_submit():
@@ -272,18 +236,13 @@ def timeline():
 @login_required
 def edit_timeline_event(event_id):
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     member = get_current_family_member()
-
     event = TimelineEvent.query.get_or_404(event_id)
 
     if event.member_id != member.id:
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     form = TimelineEventForm(obj=event)
 
@@ -330,18 +289,13 @@ def edit_timeline_event(event_id):
 @login_required
 def delete_timeline_event(event_id):
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     member = get_current_family_member()
-
     event = TimelineEvent.query.get_or_404(event_id)
 
     if event.member_id != member.id:
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     event_title = event.title
 
@@ -362,9 +316,7 @@ def delete_timeline_event(event_id):
 @login_required
 def family_tree():
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     family_members = FamilyMember.query.order_by(
         FamilyMember.generation.asc().nullslast(),
@@ -415,12 +367,9 @@ def family_tree():
 @login_required
 def family_members():
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     search = request.args.get("search", "").strip()
-
     query = FamilyMember.query
 
     if search:
@@ -450,9 +399,7 @@ def family_members():
 @login_required
 def family_member_detail(member_id):
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     member = FamilyMember.query.get_or_404(member_id)
 
@@ -482,9 +429,7 @@ def family_member_detail(member_id):
 @login_required
 def activities():
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     form = ActivityForm()
 
@@ -543,40 +488,28 @@ def activities():
 @login_required
 def edit_activity(activity_id):
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
-    activity = Activity.query.get_or_404(
-        activity_id
-    )
+    activity = Activity.query.get_or_404(activity_id)
 
     if activity.created_by != current_user.id:
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
-    form = ActivityForm(
-        obj=activity
-    )
+    form = ActivityForm(obj=activity)
 
     if form.validate_on_submit():
         activity.title = form.title.data.strip()
-
         activity.description = (
             form.description.data.strip()
             if form.description.data
             else None
         )
-
         activity.activity_date = form.activity_date.data
-
         activity.location = (
             form.location.data.strip()
             if form.location.data
             else None
         )
-
         activity.category = form.category.data
         activity.privacy_level = form.privacy_level.data
 
@@ -605,25 +538,16 @@ def edit_activity(activity_id):
 @login_required
 def delete_activity(activity_id):
     if not member_only():
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
-    activity = Activity.query.get_or_404(
-        activity_id
-    )
+    activity = Activity.query.get_or_404(activity_id)
 
     if activity.created_by != current_user.id:
-        return render_template(
-            "errors/403.html"
-        ), 403
+        return render_template("errors/403.html"), 403
 
     activity_title = activity.title
 
-    db.session.delete(
-        activity
-    )
-
+    db.session.delete(activity)
     db.session.commit()
 
     flash(
@@ -633,4 +557,141 @@ def delete_activity(activity_id):
 
     return redirect(
         url_for("member.activities")
+    )
+
+
+@member_bp.route("/events", methods=["GET", "POST"])
+@login_required
+def events():
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    form = EventForm()
+
+    if form.validate_on_submit():
+        event = Event(
+            title=form.title.data.strip(),
+            description=(
+                form.description.data.strip()
+                if form.description.data
+                else None
+            ),
+            event_date=form.event_date.data,
+            event_time=form.event_time.data,
+            location=(
+                form.location.data.strip()
+                if form.location.data
+                else None
+            ),
+            category=form.category.data,
+            privacy_level=form.privacy_level.data,
+            created_by=current_user.id
+        )
+
+        db.session.add(event)
+        db.session.commit()
+
+        flash(
+            "Event added successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("member.events")
+        )
+
+    events = Event.query.filter(
+        db.or_(
+            Event.privacy_level == "Family",
+            Event.created_by == current_user.id
+        )
+    ).order_by(
+        Event.event_date.asc(),
+        Event.event_time.asc().nullslast()
+    ).all()
+
+    return render_template(
+        "member/events.html",
+        form=form,
+        events=events
+    )
+
+
+@member_bp.route(
+    "/events/<int:event_id>/edit",
+    methods=["GET", "POST"]
+)
+@login_required
+def edit_event(event_id):
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    event = Event.query.get_or_404(event_id)
+
+    if event.created_by != current_user.id:
+        return render_template("errors/403.html"), 403
+
+    form = EventForm(obj=event)
+
+    if form.validate_on_submit():
+        event.title = form.title.data.strip()
+        event.description = (
+            form.description.data.strip()
+            if form.description.data
+            else None
+        )
+        event.event_date = form.event_date.data
+        event.event_time = form.event_time.data
+        event.location = (
+            form.location.data.strip()
+            if form.location.data
+            else None
+        )
+        event.category = form.category.data
+        event.privacy_level = form.privacy_level.data
+
+        db.session.commit()
+
+        flash(
+            "Event updated successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("member.events")
+        )
+
+    return render_template(
+        "member/edit_event.html",
+        event=event,
+        form=form
+    )
+
+
+@member_bp.route(
+    "/events/<int:event_id>/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_event(event_id):
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    event = Event.query.get_or_404(event_id)
+
+    if event.created_by != current_user.id:
+        return render_template("errors/403.html"), 403
+
+    event_title = event.title
+
+    db.session.delete(event)
+    db.session.commit()
+
+    flash(
+        f"{event_title} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("member.events")
     )

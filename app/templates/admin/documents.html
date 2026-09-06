@@ -1,0 +1,143 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Documents | Admin
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+
+    <h2 class="fw-bold mb-1">
+        Family Documents
+    </h2>
+
+    <p class="text-muted mb-0">
+        View and securely download documents uploaded by family members.
+    </p>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-header bg-white py-3">
+
+        <h5 class="mb-0">
+            All Documents
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        {% if documents %}
+
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Original File</th>
+                            <th>Privacy</th>
+                            <th>Uploaded By</th>
+                            <th>Uploaded</th>
+                            <th>Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for document in documents %}
+
+                            <tr>
+
+                                <td>
+
+                                    <strong>
+                                        {{ document.title }}
+                                    </strong>
+
+                                    {% if document.description %}
+
+                                        <div class="small text-muted">
+                                            {{ document.description }}
+                                        </div>
+
+                                    {% endif %}
+
+                                </td>
+
+                                <td>
+                                    {{ document.document_type }}
+                                </td>
+
+                                <td>
+                                    {{ document.original_filename }}
+                                </td>
+
+                                <td>
+
+                                    <span class="badge text-bg-light border">
+                                        {{ document.privacy_level }}
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    {{ document.uploader.username }}
+                                </td>
+
+                                <td>
+                                    {{ document.uploaded_at.strftime("%Y-%m-%d") }}
+                                </td>
+
+                                <td>
+
+                                    <a
+                                        href="{{ url_for(
+                                            'admin_documents.download',
+                                            document_id=document.id
+                                        ) }}"
+                                        class="btn btn-sm btn-outline-dark"
+                                    >
+                                        Download
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="text-center py-5">
+
+                <h5>
+                    No documents found
+                </h5>
+
+                <p class="text-muted mb-0">
+                    Uploaded family documents will appear here.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

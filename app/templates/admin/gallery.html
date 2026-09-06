@@ -1,0 +1,105 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Gallery | Admin
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+
+    <h2 class="fw-bold mb-1">
+        Family Gallery
+    </h2>
+
+    <p class="text-muted mb-0">
+        View all photos uploaded by family members.
+    </p>
+
+</div>
+
+<div class="row g-4">
+
+    {% for photo in photos %}
+
+        <div class="col-12 col-md-6 col-xl-4">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='uploads/gallery/' + photo.filename
+                    ) }}"
+                    class="card-img-top"
+                    alt="{{ photo.title }}"
+                    style="height: 250px; object-fit: cover;"
+                >
+
+                <div class="card-body">
+
+                    <h5 class="fw-bold mb-1">
+                        {{ photo.title }}
+                    </h5>
+
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+
+                        <span class="badge text-bg-dark">
+                            {{ photo.category }}
+                        </span>
+
+                        <span class="badge text-bg-light border">
+                            {{ photo.privacy_level }}
+                        </span>
+
+                    </div>
+
+                    {% if photo.description %}
+
+                        <p class="mb-3">
+                            {{ photo.description }}
+                        </p>
+
+                    {% endif %}
+
+                    <small class="text-muted d-block">
+                        Uploaded by {{ photo.uploader.username }}
+                    </small>
+
+                    <small class="text-muted">
+                        {{ photo.uploaded_at.strftime("%Y-%m-%d") }}
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% else %}
+
+        <div class="col-12">
+
+            <div class="card border-0 shadow-sm">
+
+                <div class="card-body text-center p-5">
+
+                    <h5>
+                        No photos found
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        Uploaded family photos will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

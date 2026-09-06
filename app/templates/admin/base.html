@@ -60,73 +60,45 @@
                 </a>
 
                 <a
-                    href="#"
+                    href="{{ url_for('admin.activities') }}"
                     class="nav-link text-white"
                 >
                     Activities
                 </a>
 
                 <a
-                    href="#"
-                    class="nav-link text-white"
-                >
-                    Education
-                </a>
-
-                <a
-                    href="#"
-                    class="nav-link text-white"
-                >
-                    Career
-                </a>
-
-                <a
-                    href="#"
-                    class="nav-link text-white"
-                >
-                    Achievements
-                </a>
-
-                <a
-                    href="#"
+                    href="{{ url_for('admin.events') }}"
                     class="nav-link text-white"
                 >
                     Events
                 </a>
 
                 <a
-                    href="#"
+                    href="{{ url_for('admin.announcements') }}"
                     class="nav-link text-white"
                 >
                     Announcements
                 </a>
 
                 <a
-                    href="#"
+                    href="{{ url_for('admin.gallery') }}"
                     class="nav-link text-white"
                 >
                     Gallery
                 </a>
 
                 <a
-                    href="#"
+                    href="{{ url_for('admin_documents.index') }}"
                     class="nav-link text-white"
                 >
                     Documents
                 </a>
 
                 <a
-                    href="#"
+                    href="{{ url_for('admin_family_history.index') }}"
                     class="nav-link text-white"
                 >
                     Family History
-                </a>
-
-                <a
-                    href="#"
-                    class="nav-link text-white"
-                >
-                    Reports
                 </a>
 
                 <hr class="border-secondary">
@@ -148,17 +120,13 @@
                 class="bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center"
             >
 
-                <div>
+                <strong>
+                    Admin Panel
+                </strong>
 
-                    <strong>
-                        Family Record Management System
-                    </strong>
-
-                </div>
-
-                <div class="text-muted">
+                <span class="text-muted">
                     {{ current_user.username }}
-                </div>
+                </span>
 
             </div>
 

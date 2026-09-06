@@ -55,6 +55,12 @@ def create_app():
     from app.routes.family_history import family_history_bp
     app.register_blueprint(family_history_bp)
 
+    from app.routes.admin_documents import admin_documents_bp
+    app.register_blueprint(admin_documents_bp)
+
+    from app.routes.admin_family_history import admin_family_history_bp
+    app.register_blueprint(admin_family_history_bp)
+
     @app.route("/")
     @login_required
     def home():

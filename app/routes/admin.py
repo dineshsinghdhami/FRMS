@@ -8,6 +8,10 @@ from app.models.family_member import FamilyMember
 from app.models.relationship import Relationship
 from app.models.user import User
 from app.utilities.decorators import admin_required
+from app.models.activity import Activity
+from app.models.event import Event
+from app.models.announcement import Announcement
+from app.models.gallery_photo import GalleryPhoto
 
 
 admin_bp = Blueprint(
@@ -563,4 +567,58 @@ def delete_member(member_id):
 
     return redirect(
         url_for("admin.members")
+    )
+
+@admin_bp.route("/activities")
+@login_required
+@admin_required
+def activities():
+    activities = Activity.query.order_by(
+        Activity.activity_date.desc().nullslast(),
+        Activity.created_at.desc()
+    ).all()
+
+    return render_template(
+        "admin/activities.html",
+        activities=activities
+    )
+
+@admin_bp.route("/events")
+@login_required
+@admin_required
+def events():
+    events = Event.query.order_by(
+        Event.event_date.asc(),
+        Event.event_time.asc().nullslast()
+    ).all()
+
+    return render_template(
+        "admin/events.html",
+        events=events
+    )
+
+@admin_bp.route("/announcements")
+@login_required
+@admin_required
+def announcements():
+    announcements = Announcement.query.order_by(
+        Announcement.created_at.desc()
+    ).all()
+
+    return render_template(
+        "admin/announcements.html",
+        announcements=announcements
+    )
+
+@admin_bp.route("/gallery")
+@login_required
+@admin_required
+def gallery():
+    photos = GalleryPhoto.query.order_by(
+        GalleryPhoto.uploaded_at.desc()
+    ).all()
+
+    return render_template(
+        "admin/gallery.html",
+        photos=photos
     )

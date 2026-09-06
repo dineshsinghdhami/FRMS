@@ -17,7 +17,9 @@ from app.forms.member import FamilyMemberForm
 from app.forms.relationship import RelationshipForm
 from app.models.activity import Activity
 from app.models.announcement import Announcement
+from app.models.document import Document
 from app.models.event import Event
+from app.models.family_history import FamilyHistory
 from app.models.family_member import FamilyMember
 from app.models.gallery_photo import GalleryPhoto
 from app.models.relationship import Relationship
@@ -573,6 +575,121 @@ def delete_member(member_id):
 
     flash(
         f"{member_name} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("admin.members")
+    )
+
+
+@admin_bp.route(
+    "/members/<int:member_id>/delete-with-account",
+    methods=["POST"]
+)
+@login_required
+@admin_required
+def delete_member_with_account(member_id):
+    member = FamilyMember.query.get_or_404(member_id)
+
+    if not member.user:
+        flash(
+            "This family member does not have a linked login account.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "admin.member_detail",
+                member_id=member.id
+            )
+        )
+
+    user = member.user
+
+    if user.role == "admin":
+        flash(
+            "Admin accounts cannot be deleted through member management.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "admin.member_detail",
+                member_id=member.id
+            )
+        )
+
+    has_activity_records = Activity.query.filter_by(
+        created_by=user.id
+    ).first() is not None
+
+    has_event_records = Event.query.filter_by(
+        created_by=user.id
+    ).first() is not None
+
+    has_announcement_records = Announcement.query.filter_by(
+        created_by=user.id
+    ).first() is not None
+
+    has_gallery_records = GalleryPhoto.query.filter_by(
+        uploaded_by=user.id
+    ).first() is not None
+
+    has_document_records = Document.query.filter_by(
+        uploaded_by=user.id
+    ).first() is not None
+
+    has_history_records = FamilyHistory.query.filter_by(
+        created_by=user.id
+    ).first() is not None
+
+    has_owned_records = any(
+        [
+            has_activity_records,
+            has_event_records,
+            has_announcement_records,
+            has_gallery_records,
+            has_document_records,
+            has_history_records
+        ]
+    )
+
+    if has_owned_records:
+        flash(
+            "This member account owns family records. "
+            "Delete or reassign those records before deleting the account.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "admin.member_detail",
+                member_id=member.id
+            )
+        )
+
+    Relationship.query.filter(
+        db.or_(
+            Relationship.member_id == member.id,
+            Relationship.related_member_id == member.id
+        )
+    ).delete(
+        synchronize_session=False
+    )
+
+    member_name = member.full_name
+    username = user.username
+
+    member.user_id = None
+    db.session.flush()
+
+    db.session.delete(member)
+    db.session.delete(user)
+    db.session.commit()
+
+    flash(
+        f"{member_name} and the linked account {username} were deleted successfully.",
         "success"
     )
 

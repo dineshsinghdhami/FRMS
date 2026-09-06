@@ -1,0 +1,111 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Create Member Account | Admin
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+
+        <h2 class="fw-bold mb-1">
+            Create Member Account
+        </h2>
+
+        <p class="text-muted mb-0">
+            Create a login account for {{ member.full_name }}.
+        </p>
+
+    </div>
+
+    <a
+        href="{{ url_for(
+            'admin.member_detail',
+            member_id=member.id
+        ) }}"
+        class="btn btn-outline-secondary"
+    >
+        Back to Member
+    </a>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-4">
+
+        <form method="POST">
+
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+
+                {{ form.username.label(class="form-label") }}
+
+                {{ form.username(
+                    class="form-control",
+                    placeholder="Enter username"
+                ) }}
+
+            </div>
+
+            <div class="mb-3">
+
+                {{ form.email.label(class="form-label") }}
+
+                {{ form.email(
+                    class="form-control",
+                    placeholder="Enter email address"
+                ) }}
+
+            </div>
+
+            <div class="mb-3">
+
+                {{ form.password.label(class="form-label") }}
+
+                {{ form.password(
+                    class="form-control",
+                    placeholder="Enter password"
+                ) }}
+
+            </div>
+
+            <div class="mb-3">
+
+                {{ form.confirm_password.label(class="form-label") }}
+
+                {{ form.confirm_password(
+                    class="form-control",
+                    placeholder="Confirm password"
+                ) }}
+
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+
+                <a
+                    href="{{ url_for(
+                        'admin.member_detail',
+                        member_id=member.id
+                    ) }}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
+                {{ form.submit(
+                    class="btn btn-dark"
+                ) }}
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

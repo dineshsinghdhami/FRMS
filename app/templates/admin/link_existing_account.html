@@ -1,0 +1,71 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Link Existing Account | Admin
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+
+    <div>
+
+        <h2 class="fw-bold mb-1">
+            Link Existing Account
+        </h2>
+
+        <p class="text-muted mb-0">
+            Link the account {{ user.username }} to an existing family member.
+        </p>
+
+    </div>
+
+    <a
+        href="{{ url_for('admin_users.index') }}"
+        class="btn btn-outline-secondary"
+    >
+        Back to User Accounts
+    </a>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-body p-4">
+
+        <form method="POST">
+
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+
+                {{ form.member_id.label(class="form-label") }}
+
+                {{ form.member_id(
+                    class="form-select"
+                ) }}
+
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+
+                <a
+                    href="{{ url_for('admin_users.index') }}"
+                    class="btn btn-outline-secondary"
+                >
+                    Cancel
+                </a>
+
+                {{ form.submit(
+                    class="btn btn-dark"
+                ) }}
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

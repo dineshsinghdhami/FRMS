@@ -189,23 +189,87 @@
                     </div>
 
                     <div class="col-md-6">
-                        <small class="text-muted d-block">
+
+                        <small class="text-muted d-block mb-1">
                             Account
                         </small>
 
                         {% if member.user %}
 
-                            <span class="badge text-bg-success">
-                                Linked
-                            </span>
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+
+                                <span class="badge text-bg-success">
+                                    Linked
+                                </span>
+
+                                <span class="small">
+                                    {{ member.user.username }}
+                                </span>
+
+                                {% if member.user.is_active %}
+
+                                    <span class="badge text-bg-light border">
+                                        Active
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge text-bg-danger">
+                                        Disabled
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'admin_users.unlink_member_account',
+                                    member_id=member.id
+                                ) }}"
+                                onsubmit="return confirm(
+                                    'Are you sure you want to unlink this login account from the family member?'
+                                );"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-outline-danger"
+                                >
+                                    Unlink Account
+                                </button>
+
+                            </form>
 
                         {% else %}
 
-                            <span class="badge text-bg-secondary">
-                                No Account
-                            </span>
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+
+                                <span class="badge text-bg-secondary">
+                                    No Account
+                                </span>
+
+                                <a
+                                    href="{{ url_for(
+                                        'admin_users.create_member_account',
+                                        member_id=member.id
+                                    ) }}"
+                                    class="btn btn-sm btn-outline-dark"
+                                >
+                                    Create Login Account
+                                </a>
+
+                            </div>
 
                         {% endif %}
+
                     </div>
 
                 </div>
@@ -217,11 +281,9 @@
         <div class="card border-0 shadow-sm mb-4">
 
             <div class="card-header bg-white py-3">
-
                 <h5 class="mb-0">
                     Biography
                 </h5>
-
             </div>
 
             <div class="card-body">
@@ -247,11 +309,9 @@
         <div class="card border-0 shadow-sm mb-4">
 
             <div class="card-header bg-white py-3">
-
                 <h5 class="mb-0">
                     Family Relationships
                 </h5>
-
             </div>
 
             <div class="card-body">
@@ -303,9 +363,7 @@
                 {% else %}
 
                     <div class="alert alert-light border">
-
                         Add another family member before creating a relationship.
-
                     </div>
 
                 {% endif %}
@@ -389,28 +447,61 @@
             <div class="card-header bg-white py-3">
 
                 <h5 class="mb-0 text-danger">
-                    Delete Family Member
+                    Danger Zone
                 </h5>
 
             </div>
 
             <div class="card-body">
 
-                <p class="text-muted">
-                    This permanently removes this family member profile.
-                    This action cannot be undone.
-                </p>
-
                 {% if member.user %}
 
-                    <button
-                        class="btn btn-outline-danger"
-                        disabled
+                    <h6 class="fw-bold">
+                        Delete Member and Login Account
+                    </h6>
+
+                    <p class="text-muted">
+                        This permanently deletes both the family member profile
+                        and the linked login account. The operation will be blocked
+                        if the account still owns family records.
+                    </p>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'admin.delete_member_with_account',
+                            member_id=member.id
+                        ) }}"
+                        onsubmit="return confirm(
+                            'This will permanently delete the family member and linked login account. Continue?'
+                        );"
                     >
-                        Cannot Delete Linked Account
-                    </button>
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            type="submit"
+                            class="btn btn-danger"
+                        >
+                            Delete Member + Account
+                        </button>
+
+                    </form>
 
                 {% else %}
+
+                    <h6 class="fw-bold">
+                        Delete Family Member
+                    </h6>
+
+                    <p class="text-muted">
+                        This permanently removes this family member profile.
+                        This action cannot be undone.
+                    </p>
 
                     <form
                         method="POST"

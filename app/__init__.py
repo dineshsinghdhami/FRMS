@@ -1,5 +1,5 @@
-from flask import Flask, redirect, render_template, url_for
-from flask_login import current_user, login_required
+from flask import Flask, flash, redirect, render_template, url_for
+from flask_login import current_user, login_required, logout_user
 
 from config import Config
 from app.extensions import csrf, db, login_manager, migrate
@@ -35,6 +35,20 @@ def create_app():
             int(user_id)
         )
 
+    @app.before_request
+    def check_active_user():
+        if current_user.is_authenticated and not current_user.is_active:
+            logout_user()
+
+            flash(
+                "Your account has been disabled. Please contact the administrator.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("auth.login")
+            )
+
     migrate.init_app(
         app,
         db
@@ -60,6 +74,9 @@ def create_app():
 
     from app.routes.admin_family_history import admin_family_history_bp
     app.register_blueprint(admin_family_history_bp)
+
+    from app.routes.admin_users import admin_users_bp
+    app.register_blueprint(admin_users_bp)
 
     @app.errorhandler(413)
     def file_too_large(error):

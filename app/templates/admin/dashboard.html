@@ -6,23 +6,250 @@ Admin Dashboard | Family Record Management System
 
 {% block content %}
 
-    <div class="mb-4">
-        <h2 class="fw-bold mb-1">
-            Admin Dashboard
-        </h2>
+<div class="mb-4">
 
-        <p class="text-muted mb-0">
-            Overview of your family management system.
-        </p>
+    <h2 class="fw-bold mb-1">
+        Admin Dashboard
+    </h2>
+
+    <p class="text-muted mb-0">
+        Overview of family records, users, and system activity.
+    </p>
+
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-2">
+                    Family Members
+                </p>
+
+                <h3 class="fw-bold mb-0">
+                    {{ total_members }}
+                </h3>
+
+                <div class="small text-muted mt-2">
+                    {{ linked_members }} linked · {{ unlinked_members }} without account
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="row g-3">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-2">
+                    Total Accounts
+                </p>
 
-        <div class="col-12 col-md-6 col-xl-3">
+                <h3 class="fw-bold mb-0">
+                    {{ total_users }}
+                </h3>
+
+                <div class="small text-muted mt-2">
+                    {{ admin_users }} admin account(s)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-2">
+                    Active Accounts
+                </p>
+
+                <h3 class="fw-bold mb-0">
+                    {{ active_users }}
+                </h3>
+
+                <div class="small text-muted mt-2">
+                    Currently allowed to log in
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-2">
+                    Disabled Accounts
+                </p>
+
+                <h3 class="fw-bold mb-0">
+                    {{ inactive_users }}
+                </h3>
+
+                <div class="small text-muted mt-2">
+                    Login access disabled
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="mb-3">
+
+    <h5 class="fw-bold mb-1">
+        Family Content
+    </h5>
+
+    <p class="text-muted mb-0">
+        Records currently stored across the system.
+    </p>
+
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a
+            href="{{ url_for('admin.activities') }}"
+            class="text-decoration-none text-dark"
+        >
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <p class="text-muted mb-2">
-                        Total Accounts
+                        Activities
+                    </p>
+
+                    <h3 class="fw-bold mb-0">
+                        {{ total_activities }}
+                    </h3>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a
+            href="{{ url_for('admin.events') }}"
+            class="text-decoration-none text-dark"
+        >
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Events
+                    </p>
+
+                    <h3 class="fw-bold mb-0">
+                        {{ total_events }}
+                    </h3>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a
+            href="{{ url_for('admin.announcements') }}"
+            class="text-decoration-none text-dark"
+        >
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Announcements
+                    </p>
+
+                    <h3 class="fw-bold mb-0">
+                        {{ total_announcements }}
+                    </h3>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a
+            href="{{ url_for('admin.gallery') }}"
+            class="text-decoration-none text-dark"
+        >
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Gallery Photos
+                    </p>
+
+                    <h3 class="fw-bold mb-0">
+                        {{ total_gallery_photos }}
+                    </h3>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a
+            href="{{ url_for('admin_documents.index') }}"
+            class="text-decoration-none text-dark"
+        >
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Documents
+                    </p>
+
+                    <h3 class="fw-bold mb-0">
+                        {{ total_documents }}
+                    </h3>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a
+            href="{{ url_for('admin_family_history.index') }}"
+            class="text-decoration-none text-dark"
+        >
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Family History
+                    </p>
+
+                    <h3 class="fw-bold mb-0">
+                        {{ total_history_records }}
+                    </h3>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a
+            href="{{ url_for('admin.family_tree') }}"
+            class="text-decoration-none text-dark"
+        >
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Relationships
+                    </p>
+
+                    <h3 class="fw-bold mb-0">
+                        {{ total_relationships }}
+                    </h3>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a
+            href="{{ url_for('admin_users.index') }}"
+            class="text-decoration-none text-dark"
+        >
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Manage Accounts
                     </p>
 
                     <h3 class="fw-bold mb-0">
@@ -30,50 +257,370 @@ Admin Dashboard | Family Record Management System
                     </h3>
                 </div>
             </div>
-        </div>
+        </a>
+    </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <p class="text-muted mb-2">
-                        Active Accounts
-                    </p>
+</div>
 
-                    <h3 class="fw-bold mb-0">
-                        {{ active_users }}
-                    </h3>
-                </div>
+<div class="row g-4 mb-4">
+
+    <div class="col-12 col-xl-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+                    Recently Added Members
+                </h5>
+
+                <a
+                    href="{{ url_for('admin.members') }}"
+                    class="btn btn-sm btn-outline-dark"
+                >
+                    View All
+                </a>
+
             </div>
-        </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <p class="text-muted mb-2">
-                        Inactive Accounts
-                    </p>
+            <div class="card-body p-0">
 
-                    <h3 class="fw-bold mb-0">
-                        {{ inactive_users }}
-                    </h3>
-                </div>
+                {% if recent_members %}
+
+                    <div class="list-group list-group-flush">
+
+                        {% for member in recent_members %}
+
+                            <a
+                                href="{{ url_for(
+                                    'admin.member_detail',
+                                    member_id=member.id
+                                ) }}"
+                                class="list-group-item list-group-item-action py-3"
+                            >
+
+                                <div class="d-flex justify-content-between align-items-start">
+
+                                    <div>
+
+                                        <div class="fw-semibold">
+                                            {{ member.full_name }}
+                                        </div>
+
+                                        <div class="small text-muted">
+                                            {{ member.occupation or "No occupation added" }}
+                                        </div>
+
+                                    </div>
+
+                                    <small class="text-muted">
+                                        {{ member.created_at.strftime("%Y-%m-%d") }}
+                                    </small>
+
+                                </div>
+
+                            </a>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="p-4 text-muted">
+                        No family members have been added yet.
+                    </div>
+
+                {% endif %}
+
             </div>
-        </div>
 
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <p class="text-muted mb-2">
-                        Admin Accounts
-                    </p>
-
-                    <h3 class="fw-bold mb-0">
-                        {{ admin_users }}
-                    </h3>
-                </div>
-            </div>
         </div>
 
     </div>
+
+    <div class="col-12 col-xl-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+                    Recent Activities
+                </h5>
+
+                <a
+                    href="{{ url_for('admin.activities') }}"
+                    class="btn btn-sm btn-outline-dark"
+                >
+                    View All
+                </a>
+
+            </div>
+
+            <div class="card-body p-0">
+
+                {% if recent_activities %}
+
+                    <div class="list-group list-group-flush">
+
+                        {% for activity in recent_activities %}
+
+                            <a
+                                href="{{ url_for('admin.activities') }}"
+                                class="list-group-item list-group-item-action py-3"
+                            >
+
+                                <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                    <div>
+
+                                        <div class="fw-semibold">
+                                            {{ activity.title }}
+                                        </div>
+
+                                        <div class="small text-muted">
+                                            {{ activity.category }}
+
+                                            {% if activity.activity_date %}
+                                                · {{ activity.activity_date }}
+                                            {% endif %}
+
+                                            {% if activity.creator %}
+                                                · {{ activity.creator.username }}
+                                            {% endif %}
+                                        </div>
+
+                                    </div>
+
+                                    <small class="text-muted text-nowrap">
+                                        {{ activity.created_at.strftime("%Y-%m-%d") }}
+                                    </small>
+
+                                </div>
+
+                            </a>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="p-4 text-muted">
+                        No activities have been added yet.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-12 col-xl-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+                    Recent Events
+                </h5>
+
+                <a
+                    href="{{ url_for('admin.events') }}"
+                    class="btn btn-sm btn-outline-dark"
+                >
+                    View All
+                </a>
+
+            </div>
+
+            <div class="card-body p-0">
+
+                {% if recent_events %}
+
+                    <div class="list-group list-group-flush">
+
+                        {% for event in recent_events %}
+
+                            <a
+                                href="{{ url_for('admin.events') }}"
+                                class="list-group-item list-group-item-action py-3"
+                            >
+
+                                <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                    <div>
+
+                                        <div class="fw-semibold">
+                                            {{ event.title }}
+                                        </div>
+
+                                        <div class="small text-muted">
+                                            {{ event.category }}
+                                            · {{ event.event_date }}
+
+                                            {% if event.event_time %}
+                                                · {{ event.event_time.strftime("%I:%M %p") }}
+                                            {% endif %}
+                                        </div>
+
+                                    </div>
+
+                                    <small class="text-muted text-nowrap">
+                                        {{ event.created_at.strftime("%Y-%m-%d") }}
+                                    </small>
+
+                                </div>
+
+                            </a>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="p-4 text-muted">
+                        No events have been added yet.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-12 col-xl-6">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+                    Recent Announcements
+                </h5>
+
+                <a
+                    href="{{ url_for('admin.announcements') }}"
+                    class="btn btn-sm btn-outline-dark"
+                >
+                    View All
+                </a>
+
+            </div>
+
+            <div class="card-body p-0">
+
+                {% if recent_announcements %}
+
+                    <div class="list-group list-group-flush">
+
+                        {% for announcement in recent_announcements %}
+
+                            <a
+                                href="{{ url_for('admin.announcements') }}"
+                                class="list-group-item list-group-item-action py-3"
+                            >
+
+                                <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                    <div>
+
+                                        <div class="fw-semibold">
+                                            {{ announcement.title }}
+                                        </div>
+
+                                        <div class="small text-muted">
+                                            {{ announcement.category }}
+                                            · {{ announcement.priority }}
+
+                                            {% if announcement.creator %}
+                                                · {{ announcement.creator.username }}
+                                            {% endif %}
+                                        </div>
+
+                                    </div>
+
+                                    <small class="text-muted text-nowrap">
+                                        {{ announcement.created_at.strftime("%Y-%m-%d") }}
+                                    </small>
+
+                                </div>
+
+                            </a>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <div class="p-4 text-muted">
+                        No announcements have been added yet.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card border-0 shadow-sm">
+
+    <div class="card-header bg-white py-3">
+
+        <h5 class="mb-0">
+            Quick Actions
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a
+                href="{{ url_for('admin.add_member') }}"
+                class="btn btn-dark"
+            >
+                Add Family Member
+            </a>
+
+            <a
+                href="{{ url_for('admin.members') }}"
+                class="btn btn-outline-dark"
+            >
+                View Members
+            </a>
+
+            <a
+                href="{{ url_for('admin.family_tree') }}"
+                class="btn btn-outline-dark"
+            >
+                Family Tree
+            </a>
+
+            <a
+                href="{{ url_for('admin_users.index') }}"
+                class="btn btn-outline-dark"
+            >
+                User Accounts
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}

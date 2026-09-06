@@ -163,16 +163,72 @@ def assign_generation_from_relationship(
 @admin_required
 def dashboard():
     total_users = User.query.count()
-    active_users = User.query.filter_by(is_active=True).count()
-    inactive_users = User.query.filter_by(is_active=False).count()
-    admin_users = User.query.filter_by(role="admin").count()
+
+    active_users = User.query.filter_by(
+        is_active=True
+    ).count()
+
+    inactive_users = User.query.filter_by(
+        is_active=False
+    ).count()
+
+    admin_users = User.query.filter_by(
+        role="admin"
+    ).count()
+
+    total_members = FamilyMember.query.count()
+    total_activities = Activity.query.count()
+    total_events = Event.query.count()
+    total_announcements = Announcement.query.count()
+    total_gallery_photos = GalleryPhoto.query.count()
+    total_documents = Document.query.count()
+    total_history_records = FamilyHistory.query.count()
+    total_relationships = Relationship.query.count()
+
+    linked_members = FamilyMember.query.filter(
+        FamilyMember.user_id.isnot(None)
+    ).count()
+
+    unlinked_members = FamilyMember.query.filter(
+        FamilyMember.user_id.is_(None)
+    ).count()
+
+    recent_members = FamilyMember.query.order_by(
+        FamilyMember.created_at.desc()
+    ).limit(5).all()
+
+    recent_activities = Activity.query.order_by(
+        Activity.created_at.desc()
+    ).limit(5).all()
+
+    recent_events = Event.query.order_by(
+        Event.created_at.desc()
+    ).limit(5).all()
+
+    recent_announcements = Announcement.query.order_by(
+        Announcement.created_at.desc()
+    ).limit(5).all()
 
     return render_template(
         "admin/dashboard.html",
         total_users=total_users,
         active_users=active_users,
         inactive_users=inactive_users,
-        admin_users=admin_users
+        admin_users=admin_users,
+        total_members=total_members,
+        total_activities=total_activities,
+        total_events=total_events,
+        total_announcements=total_announcements,
+        total_gallery_photos=total_gallery_photos,
+        total_documents=total_documents,
+        total_history_records=total_history_records,
+        total_relationships=total_relationships,
+        linked_members=linked_members,
+        unlinked_members=unlinked_members,
+        recent_members=recent_members,
+        recent_activities=recent_activities,
+        recent_events=recent_events,
+        recent_announcements=recent_announcements
     )
 
 

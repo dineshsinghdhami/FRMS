@@ -28,8 +28,8 @@ Gallery | Admin
 
                 <img
                     src="{{ url_for(
-                        'static',
-                        filename='uploads/gallery/' + photo.filename
+                        'admin.gallery_photo_image',
+                        photo_id=photo.id
                     ) }}"
                     class="card-img-top"
                     alt="{{ photo.title }}"

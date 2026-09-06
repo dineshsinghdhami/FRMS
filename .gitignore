@@ -33,3 +33,6 @@ app/static/uploads/*
 
 app/uploads/documents/*
 !app/uploads/documents/.gitkeep
+
+app/uploads/gallery/*
+!app/uploads/gallery/.gitkeep

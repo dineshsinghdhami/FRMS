@@ -44,7 +44,6 @@ def member_only():
 def save_gallery_photo(photo_file):
     upload_folder = os.path.join(
         current_app.root_path,
-        "static",
         "uploads",
         "gallery"
     )
@@ -854,6 +853,36 @@ def gallery():
     )
 
 
+@member_bp.route("/gallery/<int:photo_id>/image")
+@login_required
+def gallery_photo_image(photo_id):
+    if not member_only():
+        return render_template("errors/403.html"), 403
+
+    photo = GalleryPhoto.query.get_or_404(
+        photo_id
+    )
+
+    can_access = (
+        photo.privacy_level == "Family"
+        or photo.uploaded_by == current_user.id
+    )
+
+    if not can_access:
+        return render_template("errors/403.html"), 403
+
+    upload_folder = os.path.join(
+        current_app.root_path,
+        "uploads",
+        "gallery"
+    )
+
+    return send_from_directory(
+        upload_folder,
+        photo.filename
+    )
+
+
 @member_bp.route("/gallery/<int:photo_id>/delete", methods=["POST"])
 @login_required
 def delete_gallery_photo(photo_id):
@@ -867,7 +896,6 @@ def delete_gallery_photo(photo_id):
 
     file_path = os.path.join(
         current_app.root_path,
-        "static",
         "uploads",
         "gallery",
         photo.filename
@@ -970,6 +998,7 @@ def download_document(document_id):
         as_attachment=True,
         download_name=document.original_filename
     )
+
 
 @member_bp.route(
     "/documents/<int:document_id>/delete",

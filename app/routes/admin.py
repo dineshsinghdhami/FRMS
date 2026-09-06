@@ -7,6 +7,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_from_directory,
     url_for,
 )
 from flask_login import login_required
@@ -712,6 +713,26 @@ def gallery():
     )
 
 
+@admin_bp.route("/gallery/<int:photo_id>/image")
+@login_required
+@admin_required
+def gallery_photo_image(photo_id):
+    photo = GalleryPhoto.query.get_or_404(
+        photo_id
+    )
+
+    upload_folder = os.path.join(
+        current_app.root_path,
+        "uploads",
+        "gallery"
+    )
+
+    return send_from_directory(
+        upload_folder,
+        photo.filename
+    )
+
+
 @admin_bp.route(
     "/gallery/<int:photo_id>/delete",
     methods=["POST"]
@@ -725,7 +746,6 @@ def delete_gallery_photo(photo_id):
 
     photo_path = os.path.join(
         current_app.root_path,
-        "static",
         "uploads",
         "gallery",
         photo.filename

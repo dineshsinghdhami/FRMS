@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from config import Config
@@ -60,6 +60,12 @@ def create_app():
 
     from app.routes.admin_family_history import admin_family_history_bp
     app.register_blueprint(admin_family_history_bp)
+
+    @app.errorhandler(413)
+    def file_too_large(error):
+        return render_template(
+            "errors/413.html"
+        ), 413
 
     @app.route("/")
     @login_required

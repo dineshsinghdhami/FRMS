@@ -26,6 +26,7 @@ def create_app():
     from app.models.announcement import Announcement
     from app.models.gallery_photo import GalleryPhoto
     from app.models.document import Document
+    from app.models.family_history import FamilyHistory
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -50,6 +51,9 @@ def create_app():
 
     from app.routes.member import member_bp
     app.register_blueprint(member_bp)
+
+    from app.routes.family_history import family_history_bp
+    app.register_blueprint(family_history_bp)
 
     @app.route("/")
     @login_required

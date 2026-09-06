@@ -36,8 +36,11 @@ def create_app():
         )
 
     @app.before_request
-    def check_active_user():
-        if current_user.is_authenticated and not current_user.is_active:
+    def check_user_access():
+        if not current_user.is_authenticated:
+            return None
+
+        if not current_user.is_active:
             logout_user()
 
             flash(
@@ -48,6 +51,26 @@ def create_app():
             return redirect(
                 url_for("auth.login")
             )
+
+        if current_user.role == "member":
+            linked_member = FamilyMember.query.filter_by(
+                user_id=current_user.id
+            ).first()
+
+            if not linked_member:
+                logout_user()
+
+                flash(
+                    "Your account is no longer linked to a family member profile. "
+                    "Please contact the administrator.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for("auth.login")
+                )
+
+        return None
 
     migrate.init_app(
         app,

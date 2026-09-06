@@ -5,6 +5,7 @@ from flask_login import current_user, login_user, logout_user
 
 from app.extensions import db
 from app.forms.auth import LoginForm
+from app.models.family_member import FamilyMember
 from app.models.user import User
 
 
@@ -32,25 +33,64 @@ def login():
                     "Your account is inactive. Please contact the administrator.",
                     "danger"
                 )
-                return render_template("auth/login.html", form=form)
+
+                return render_template(
+                    "auth/login.html",
+                    form=form
+                )
+
+            if user.role == "member":
+                linked_member = FamilyMember.query.filter_by(
+                    user_id=user.id
+                ).first()
+
+                if not linked_member:
+                    flash(
+                        "Your account is not linked to a family member profile. "
+                        "Please contact the administrator.",
+                        "danger"
+                    )
+
+                    return render_template(
+                        "auth/login.html",
+                        form=form
+                    )
 
             user.last_login = datetime.now(timezone.utc)
+
             db.session.commit()
 
             login_user(user)
 
             if user.role == "admin":
-                return redirect(url_for("admin.dashboard"))
+                return redirect(
+                    url_for("admin.dashboard")
+                )
 
-            return redirect(url_for("home"))
+            return redirect(
+                url_for("home")
+            )
 
-        flash("Invalid username or password.", "danger")
+        flash(
+            "Invalid username or password.",
+            "danger"
+        )
 
-    return render_template("auth/login.html", form=form)
+    return render_template(
+        "auth/login.html",
+        form=form
+    )
 
 
 @auth_bp.route("/logout")
 def logout():
     logout_user()
-    flash("You have been logged out successfully.", "success")
-    return redirect(url_for("auth.login"))
+
+    flash(
+        "You have been logged out successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("auth.login")
+    )

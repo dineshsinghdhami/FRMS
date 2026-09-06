@@ -30,3 +30,6 @@ Thumbs.db
 # Uploads during development
 app/static/uploads/*
 !app/static/uploads/.gitkeep
+
+app/uploads/documents/*
+!app/uploads/documents/.gitkeep

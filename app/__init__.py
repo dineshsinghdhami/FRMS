@@ -27,6 +27,7 @@ def create_app():
     from app.models.gallery_photo import GalleryPhoto
     from app.models.document import Document
     from app.models.family_history import FamilyHistory
+    from app.models.invitation import Invitation
 
     @login_manager.user_loader
     def load_user(user_id):

@@ -1,5 +1,7 @@
+from datetime import datetime, timezone
+
 from flask import Blueprint, flash, redirect, render_template, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
 
 from app.extensions import db
 from app.forms.admin_user import AdminResetPasswordForm
@@ -12,6 +14,7 @@ from app.models.event import Event
 from app.models.family_history import FamilyHistory
 from app.models.family_member import FamilyMember
 from app.models.gallery_photo import GalleryPhoto
+from app.models.invitation import Invitation
 from app.models.user import User
 from app.utilities.decorators import admin_required
 
@@ -229,6 +232,140 @@ def create_member_account(member_id):
         "admin/create_member_account.html",
         member=member,
         form=form
+    )
+
+
+@admin_users_bp.route(
+    "/members/<int:member_id>/create-invitation",
+    methods=["POST"]
+)
+@login_required
+@admin_required
+def create_invitation(member_id):
+    member = FamilyMember.query.get_or_404(
+        member_id
+    )
+
+    if member.user_id is not None:
+        flash(
+            "This family member already has a linked login account.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "admin.member_detail",
+                member_id=member.id
+            )
+        )
+
+    existing_invitations = Invitation.query.filter_by(
+        family_member_id=member.id
+    ).order_by(
+        Invitation.created_at.desc()
+    ).all()
+
+    for invitation in existing_invitations:
+        if invitation.is_valid():
+            invitation_url = url_for(
+                "auth.register_invitation",
+                token=invitation.token,
+                _external=True
+            )
+
+            return render_template(
+                "admin/invitation_created.html",
+                member=member,
+                invitation=invitation,
+                invitation_url=invitation_url
+            )
+
+    token = Invitation.generate_token()
+
+    while Invitation.query.filter_by(
+        token=token
+    ).first():
+        token = Invitation.generate_token()
+
+    invitation = Invitation(
+        family_member_id=member.id,
+        token=token,
+        created_by=current_user.id,
+        expires_at=Invitation.default_expiry()
+    )
+
+    db.session.add(invitation)
+    db.session.commit()
+
+    invitation_url = url_for(
+        "auth.register_invitation",
+        token=invitation.token,
+        _external=True
+    )
+
+    return render_template(
+        "admin/invitation_created.html",
+        member=member,
+        invitation=invitation,
+        invitation_url=invitation_url
+    )
+
+
+@admin_users_bp.route(
+    "/invitations/<int:invitation_id>/revoke",
+    methods=["POST"]
+)
+@login_required
+@admin_required
+def revoke_invitation(invitation_id):
+    invitation = Invitation.query.get_or_404(
+        invitation_id
+    )
+
+    member = invitation.member
+
+    if invitation.used_at is not None:
+        flash(
+            "This invitation has already been used and cannot be revoked.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "admin.member_detail",
+                member_id=member.id
+            )
+        )
+
+    if invitation.revoked_at is not None:
+        flash(
+            "This invitation has already been revoked.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "admin.member_detail",
+                member_id=member.id
+            )
+        )
+
+    invitation.revoked_at = datetime.now(
+        timezone.utc
+    )
+
+    db.session.commit()
+
+    flash(
+        f"Invitation for {member.full_name} was revoked successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for(
+            "admin.member_detail",
+            member_id=member.id
+        )
     )
 
 

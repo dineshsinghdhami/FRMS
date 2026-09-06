@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Complete Registration | Family Record Management System
+    </title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+</head>
+
+<body class="bg-light">
+
+    <div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+
+        <div
+            class="card border-0 shadow-sm"
+            style="max-width: 520px; width: 100%;"
+        >
+
+            <div class="card-body p-4 p-md-5">
+
+                <div class="mb-4">
+
+                    <h2 class="fw-bold mb-2">
+                        Complete Your Registration
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        You have been invited to join the Family Record Management System.
+                    </p>
+
+                </div>
+
+                <div class="alert alert-light border mb-4">
+
+                    <small class="text-muted d-block">
+                        Family Member
+                    </small>
+
+                    <strong>
+                        {{ member.full_name }}
+                    </strong>
+
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+
+                    {% if messages %}
+
+                        {% for category, message in messages %}
+
+                            <div
+                                class="alert alert-{{ category }}"
+                                role="alert"
+                            >
+                                {{ message }}
+                            </div>
+
+                        {% endfor %}
+
+                    {% endif %}
+
+                {% endwith %}
+
+                <form method="POST">
+
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+
+                        {{ form.username.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.username(
+                            class="form-control",
+                            placeholder="Choose a username"
+                        ) }}
+
+                        {% for error in form.username.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        {{ form.email.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.email(
+                            class="form-control",
+                            placeholder="Enter your email"
+                        ) }}
+
+                        {% for error in form.email.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        {{ form.password.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.password(
+                            class="form-control",
+                            placeholder="Create a password"
+                        ) }}
+
+                        {% for error in form.password.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        {{ form.confirm_password.label(
+                            class="form-label"
+                        ) }}
+
+                        {{ form.confirm_password(
+                            class="form-control",
+                            placeholder="Confirm your password"
+                        ) }}
+
+                        {% for error in form.confirm_password.errors %}
+
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    {{ form.submit(
+                        class="btn btn-dark w-100"
+                    ) }}
+
+                </form>
+
+                <p class="text-muted small mt-4 mb-0 text-center">
+                    This invitation can only be used once.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

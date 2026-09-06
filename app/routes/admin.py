@@ -11,6 +11,7 @@ from flask import (
     url_for,
 )
 from flask_login import login_required
+from sqlalchemy import text
 
 from app.extensions import db
 from app.forms.member import FamilyMemberForm
@@ -229,6 +230,50 @@ def dashboard():
         recent_activities=recent_activities,
         recent_events=recent_events,
         recent_announcements=recent_announcements
+    )
+
+
+@admin_bp.route("/system-status")
+@login_required
+@admin_required
+def system_status():
+    database_status = "Connected"
+    database_message = "Database connection is working normally."
+
+    try:
+        db.session.execute(
+            text("SELECT 1")
+        )
+    except Exception:
+        db.session.rollback()
+
+        database_status = "Unavailable"
+        database_message = "The application could not connect to the database."
+
+    max_upload_bytes = current_app.config.get(
+        "MAX_CONTENT_LENGTH",
+        0
+    )
+
+    max_upload_mb = (
+        max_upload_bytes // (1024 * 1024)
+        if max_upload_bytes
+        else None
+    )
+
+    system_info = {
+        "application_status": "Running",
+        "database_status": database_status,
+        "database_message": database_message,
+        "debug_mode": current_app.debug,
+        "max_upload_mb": max_upload_mb,
+        "total_users": User.query.count(),
+        "total_members": FamilyMember.query.count()
+    }
+
+    return render_template(
+        "admin/system_status.html",
+        system_info=system_info
     )
 
 

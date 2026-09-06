@@ -1,0 +1,211 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+System Status | Admin
+{% endblock %}
+
+{% block content %}
+
+<div class="mb-4">
+
+    <h2 class="fw-bold mb-1">
+        System Status
+    </h2>
+
+    <p class="text-muted mb-0">
+        Check the current health of the application and database.
+    </p>
+
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-12 col-md-6 col-xl-3">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <p class="text-muted mb-2">
+                    Application
+                </p>
+
+                <h4 class="fw-bold mb-0 text-success">
+                    {{ system_info.application_status }}
+                </h4>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <p class="text-muted mb-2">
+                    Database
+                </p>
+
+                {% if system_info.database_status == "Connected" %}
+
+                    <h4 class="fw-bold mb-0 text-success">
+                        Connected
+                    </h4>
+
+                {% else %}
+
+                    <h4 class="fw-bold mb-0 text-danger">
+                        Unavailable
+                    </h4>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <p class="text-muted mb-2">
+                    Total Users
+                </p>
+
+                <h4 class="fw-bold mb-0">
+                    {{ system_info.total_users }}
+                </h4>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+
+        <div class="card border-0 shadow-sm h-100">
+
+            <div class="card-body">
+
+                <p class="text-muted mb-2">
+                    Family Members
+                </p>
+
+                <h4 class="fw-bold mb-0">
+                    {{ system_info.total_members }}
+                </h4>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+
+    <div class="card-header bg-white py-3">
+
+        <h5 class="mb-0">
+            System Information
+        </h5>
+
+    </div>
+
+    <div class="card-body">
+
+        <div class="row g-4">
+
+            <div class="col-md-6">
+
+                <small class="text-muted d-block mb-1">
+                    Database Status
+                </small>
+
+                <strong>
+                    {{ system_info.database_status }}
+                </strong>
+
+                <p class="text-muted small mt-1 mb-0">
+                    {{ system_info.database_message }}
+                </p>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <small class="text-muted d-block mb-1">
+                    Debug Mode
+                </small>
+
+                {% if system_info.debug_mode %}
+
+                    <span class="badge text-bg-warning">
+                        Enabled
+                    </span>
+
+                {% else %}
+
+                    <span class="badge text-bg-success">
+                        Disabled
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+            <div class="col-md-6">
+
+                <small class="text-muted d-block mb-1">
+                    Maximum Upload Size
+                </small>
+
+                <strong>
+                    {% if system_info.max_upload_mb %}
+                        {{ system_info.max_upload_mb }} MB
+                    {% else %}
+                        Not configured
+                    {% endif %}
+                </strong>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <small class="text-muted d-block mb-1">
+                    Access
+                </small>
+
+                <strong>
+                    Administrator Only
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="alert alert-light border mb-0">
+
+    <strong>
+        Security Note:
+    </strong>
+
+    This page does not display database passwords, secret keys, or other sensitive configuration values.
+
+</div>
+
+{% endblock %}

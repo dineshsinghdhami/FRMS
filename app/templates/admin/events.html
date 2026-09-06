@@ -13,7 +13,7 @@ Events | Admin
     </h2>
 
     <p class="text-muted mb-0">
-        View all family events created by members.
+        View and manage all family events created by members.
     </p>
 
 </div>
@@ -46,6 +46,7 @@ Events | Admin
                             <th>Location</th>
                             <th>Privacy</th>
                             <th>Created By</th>
+                            <th>Action</th>
                         </tr>
 
                     </thead>
@@ -108,6 +109,36 @@ Events | Admin
 
                                 <td>
                                     {{ event.creator.username }}
+                                </td>
+
+                                <td>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for(
+                                            'admin.delete_event',
+                                            event_id=event.id
+                                        ) }}"
+                                        onsubmit="return confirm(
+                                            'Are you sure you want to delete this event?'
+                                        );"
+                                    >
+
+                                        <input
+                                            type="hidden"
+                                            name="csrf_token"
+                                            value="{{ csrf_token() }}"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                        >
+                                            Delete
+                                        </button>
+
+                                    </form>
+
                                 </td>
 
                             </tr>

@@ -13,7 +13,7 @@ Documents | Admin
     </h2>
 
     <p class="text-muted mb-0">
-        View and securely download documents uploaded by family members.
+        View, download, and manage documents uploaded by family members.
     </p>
 
 </div>
@@ -45,7 +45,7 @@ Documents | Admin
                             <th>Privacy</th>
                             <th>Uploaded By</th>
                             <th>Uploaded</th>
-                            <th>Action</th>
+                            <th>Actions</th>
                         </tr>
 
                     </thead>
@@ -98,15 +98,45 @@ Documents | Admin
 
                                 <td>
 
-                                    <a
-                                        href="{{ url_for(
-                                            'admin_documents.download',
-                                            document_id=document.id
-                                        ) }}"
-                                        class="btn btn-sm btn-outline-dark"
-                                    >
-                                        Download
-                                    </a>
+                                    <div class="d-flex gap-2">
+
+                                        <a
+                                            href="{{ url_for(
+                                                'admin_documents.download',
+                                                document_id=document.id
+                                            ) }}"
+                                            class="btn btn-sm btn-outline-dark"
+                                        >
+                                            Download
+                                        </a>
+
+                                        <form
+                                            method="POST"
+                                            action="{{ url_for(
+                                                'admin_documents.delete',
+                                                document_id=document.id
+                                            ) }}"
+                                            onsubmit="return confirm(
+                                                'Are you sure you want to delete this document?'
+                                            );"
+                                        >
+
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="{{ csrf_token() }}"
+                                            >
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-sm btn-outline-danger"
+                                            >
+                                                Delete
+                                            </button>
+
+                                        </form>
+
+                                    </div>
 
                                 </td>
 

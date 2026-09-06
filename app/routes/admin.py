@@ -1,17 +1,27 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+import os
+
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import login_required
 
 from app.extensions import db
 from app.forms.member import FamilyMemberForm
 from app.forms.relationship import RelationshipForm
+from app.models.activity import Activity
+from app.models.announcement import Announcement
+from app.models.event import Event
 from app.models.family_member import FamilyMember
+from app.models.gallery_photo import GalleryPhoto
 from app.models.relationship import Relationship
 from app.models.user import User
 from app.utilities.decorators import admin_required
-from app.models.activity import Activity
-from app.models.event import Event
-from app.models.announcement import Announcement
-from app.models.gallery_photo import GalleryPhoto
 
 
 admin_bp = Blueprint(
@@ -569,6 +579,7 @@ def delete_member(member_id):
         url_for("admin.members")
     )
 
+
 @admin_bp.route("/activities")
 @login_required
 @admin_required
@@ -582,6 +593,31 @@ def activities():
         "admin/activities.html",
         activities=activities
     )
+
+
+@admin_bp.route(
+    "/activities/<int:activity_id>/delete",
+    methods=["POST"]
+)
+@login_required
+@admin_required
+def delete_activity(activity_id):
+    activity = Activity.query.get_or_404(activity_id)
+
+    activity_title = activity.title
+
+    db.session.delete(activity)
+    db.session.commit()
+
+    flash(
+        f"{activity_title} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("admin.activities")
+    )
+
 
 @admin_bp.route("/events")
 @login_required
@@ -597,6 +633,31 @@ def events():
         events=events
     )
 
+
+@admin_bp.route(
+    "/events/<int:event_id>/delete",
+    methods=["POST"]
+)
+@login_required
+@admin_required
+def delete_event(event_id):
+    event = Event.query.get_or_404(event_id)
+
+    event_title = event.title
+
+    db.session.delete(event)
+    db.session.commit()
+
+    flash(
+        f"{event_title} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("admin.events")
+    )
+
+
 @admin_bp.route("/announcements")
 @login_required
 @admin_required
@@ -610,6 +671,33 @@ def announcements():
         announcements=announcements
     )
 
+
+@admin_bp.route(
+    "/announcements/<int:announcement_id>/delete",
+    methods=["POST"]
+)
+@login_required
+@admin_required
+def delete_announcement(announcement_id):
+    announcement = Announcement.query.get_or_404(
+        announcement_id
+    )
+
+    announcement_title = announcement.title
+
+    db.session.delete(announcement)
+    db.session.commit()
+
+    flash(
+        f"{announcement_title} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("admin.announcements")
+    )
+
+
 @admin_bp.route("/gallery")
 @login_required
 @admin_required
@@ -621,4 +709,39 @@ def gallery():
     return render_template(
         "admin/gallery.html",
         photos=photos
+    )
+
+
+@admin_bp.route(
+    "/gallery/<int:photo_id>/delete",
+    methods=["POST"]
+)
+@login_required
+@admin_required
+def delete_gallery_photo(photo_id):
+    photo = GalleryPhoto.query.get_or_404(photo_id)
+
+    photo_title = photo.title
+
+    photo_path = os.path.join(
+        current_app.root_path,
+        "static",
+        "uploads",
+        "gallery",
+        photo.filename
+    )
+
+    if os.path.exists(photo_path):
+        os.remove(photo_path)
+
+    db.session.delete(photo)
+    db.session.commit()
+
+    flash(
+        f"{photo_title} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("admin.gallery")
     )

@@ -1,4 +1,4 @@
-# Family Record Management System
+# # Family Record Management System
 
 ![License](https://img.shields.io/badge/license-Proprietary-red)
 ![Python](https://img.shields.io/badge/Python-3.12%2B-blue)
@@ -14,7 +14,7 @@ It is designed to digitally record, organize, manage, and preserve important fam
 
 ---
 
-## Features
+## # Features
 
 - Admin and Member login
 - Role-based access control
@@ -33,19 +33,19 @@ It is designed to digitally record, organize, manage, and preserve important fam
 
 ---
 
-## User Roles
+## # User Roles
 
-### Admin
+### # Admin
 
 Admin can manage family members, user accounts, relationships, invitations, activities, events, announcements, gallery, documents, family history, and system status.
 
-### Member
+### # Member
 
 Members can manage their profile, timeline, activities, events, announcements, gallery, documents, family history, and view family members and the family tree.
 
 ---
 
-## Invitation Registration
+## # Invitation Registration
 
 ```text
 Admin Creates Family Member
@@ -65,7 +65,7 @@ Invitation links are unique, one-time use, expirable, and can be revoked by the 
 
 ---
 
-## Tech Stack
+## # Tech Stack
 
 - **Python**
 - **Flask**
@@ -81,7 +81,7 @@ Invitation links are unique, one-time use, expirable, and can be revoked by the 
 
 ---
 
-## Project Structure
+## # Project Structure
 
 ```text
 family-record-management/
@@ -105,13 +105,13 @@ family-record-management/
 
 ---
 
-## Note
+## # Note
 
 > **Family Record Management System (FRMS)** was designed and developed by **Dinesh Singh Dhami** to digitally record, organize, manage, and preserve family details and important family records.
 
 ---
 
-## Author
+## # Author
 
 **Dinesh Singh Dhami**
 
@@ -121,7 +121,7 @@ family-record-management/
 
 ---
 
-## License
+## # License
 
 This project is proprietary software created by **Dinesh Singh Dhami**.
 
